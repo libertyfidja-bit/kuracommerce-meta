@@ -3,68 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KuraCommerce | AI Studio & Local Service Map</title>
+  <title>KuraCommerce | AI Voice Studio & Map Hub</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 1.5rem; }
-    .container { max-width: 1020px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 1.25rem; }
-    h1 { color: #38bdf8; margin-bottom: 0.25rem; }
-    .nav-tabs { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .nav-tab { background: #1e293b; border: 1px solid #475569; color: #cbd5e1; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; width: auto; margin-top: 0; }
-    .nav-tab.active { background: #0284c7; color: white; border-color: #0284c7; }
-    .card { background: #1e293b; border-radius: 12px; padding: 1.5rem; border: 1px solid #334155; margin-bottom: 1.5rem; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-    .input-group { margin-bottom: 0.75rem; }
-    .input-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #cbd5e1; font-size: 0.9rem; }
-    .input-field { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
-    .upload-box { border: 2px dashed #38bdf8; border-radius: 8px; padding: 1.75rem; text-align: center; cursor: pointer; background: rgba(56, 189, 248, 0.05); }
-    button { background: #0284c7; color: white; border: none; border-radius: 8px; padding: 0.85rem 1.5rem; font-weight: 600; cursor: pointer; margin-top: 1rem; width: 100%; font-size: 1rem; }
-    button:hover { background: #0369a1; }
-    .order-btn { background: #10b981; margin-top: 1rem; text-decoration: none; display: block; text-align: center; padding: 0.85rem; border-radius: 8px; color: white; font-weight: 600; }
+    :root {
+      --bg-main: #090d16;
+      --card-bg: #131c31;
+      --border-color: #1e293b;
+      --accent-green: #10b981;
+      --accent-cyan: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 1.5rem; }
+    .container { max-width: 1040px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 1.5rem; }
+    h1 { color: var(--accent-cyan); margin-bottom: 0.25rem; font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    p { color: var(--text-muted); }
+    .nav-tabs { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .nav-tab { background: #1a2744; border: 1px solid #334155; color: var(--text-muted); padding: 0.65rem 1.35rem; border-radius: 10px; cursor: pointer; font-weight: 600; width: auto; margin-top: 0; transition: all 0.2s ease; }
+    .nav-tab:hover { border-color: var(--accent-cyan); color: white; }
+    .nav-tab.active { background: #0284c7; color: white; border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+    .card { background: var(--card-bg); border-radius: 14px; padding: 1.75rem; border: 1px solid #283548; margin-bottom: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+    .input-group { margin-bottom: 0.85rem; }
+    .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #e2e8f0; font-size: 0.92rem; }
+    .input-field { width: 100%; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid #334155; background: #0b111e; color: var(--text-main); font-size: 1rem; box-sizing: border-box; }
+    .input-field:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(56,189,248,0.2); }
+    .upload-box { border: 2px dashed #38bdf8; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; background: rgba(56, 189, 248, 0.04); transition: background 0.2s; }
+    .upload-box:hover { background: rgba(56, 189, 248, 0.08); }
+    
+    /* Voice Recording Section Styling */
+    .voice-box { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; margin-top: 1.25rem; text-align: center; }
+    .mic-btn { background: #059669; color: white; border: none; border-radius: 50px; padding: 0.75rem 1.75rem; font-weight: bold; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.2s; width: auto; margin-top: 0.5rem; }
+    .mic-btn:hover { background: #047857; transform: scale(1.02); }
+    .mic-btn.recording { background: #dc2626; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+
+    button.primary-action { background: #0284c7; color: white; border: none; border-radius: 10px; padding: 1rem 1.5rem; font-weight: 700; cursor: pointer; margin-top: 1.25rem; width: 100%; font-size: 1.05rem; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
+    button.primary-action:hover { background: #0369a1; }
+    
+    .order-btn { background: var(--accent-green); margin-top: 1.25rem; text-decoration: none; display: block; text-align: center; padding: 1rem; border-radius: 10px; color: white; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
     .order-btn:hover { background: #059669; }
-    .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
-    img { max-width: 100%; border-radius: 8px; border: 1px solid #475569; display: none; }
+    
+    .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem; }
+    img { max-width: 100%; border-radius: 10px; border: 1px solid #334155; display: none; }
     .result-box, .view-section { display: none; }
-    .badge { display: inline-block; background: #0369a1; padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.85rem; margin-right: 0.5rem; margin-bottom: 0.4rem; }
-    .wa-box { background: #064e3b; border: 1px solid #10b981; padding: 1rem; border-radius: 8px; white-space: pre-wrap; margin-top: 1rem; color: #ecfdf5; }
-    #map { height: 380px; width: 100%; border-radius: 10px; border: 1px solid #475569; margin-top: 1rem; }
-    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .filter-btn { width: auto; margin-top: 0; padding: 0.45rem 0.9rem; font-size: 0.85rem; background: #334155; }
-    .filter-btn.active { background: #10b981; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
-    th, td { border: 1px solid #334155; padding: 0.75rem; text-align: left; }
-    th { background: #0f172a; color: #38bdf8; }
-    /* Modal for Admin Details */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; }
-    .modal-content { background: #1e293b; border: 1px solid #38bdf8; border-radius: 12px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.5rem; }
-    .modal-pre { background: #0f172a; padding: 1rem; border-radius: 8px; color: #a5f3fc; overflow-x: auto; font-size: 0.85rem; }
+    .badge { display: inline-block; background: #0284c7; color: white; padding: 0.4rem 0.75rem; border-radius: 8px; font-size: 0.9rem; margin-right: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; }
+    .wa-box { background: #064e3b; border: 1px solid #10b981; padding: 1.25rem; border-radius: 10px; white-space: pre-wrap; margin-top: 1.25rem; color: #ecfdf5; font-size: 0.95rem; }
+    #map { height: 400px; width: 100%; border-radius: 12px; border: 1px solid #334155; margin-top: 1.25rem; }
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .filter-btn { width: auto; margin-top: 0; padding: 0.5rem 1rem; font-size: 0.9rem; background: #1e293b; color: var(--text-muted); border: 1px solid #334155; }
+    .filter-btn.active { background: var(--accent-green); color: white; border-color: var(--accent-green); }
+    table { width: 100%; border-collapse: collapse; margin-top: 1.25rem; font-size: 0.92rem; }
+    th, td { border: 1px solid #283548; padding: 0.85rem; text-align: left; }
+    th { background: #0b111e; color: var(--accent-cyan); }
+    td { color: #e2e8f0; }
+    
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-content { background: var(--card-bg); border: 1px solid var(--accent-cyan); border-radius: 14px; max-width: 750px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.75rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .modal-pre { background: #0b111e; padding: 1.25rem; border-radius: 10px; color: #a5f3fc; overflow-x: auto; font-size: 0.85rem; border: 1px solid #1e293b; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>KuraCommerce Hub</h1>
-      <p>Smart Product Studio, Local Services (Barbers, Tailors, Markets) & Live Location Finder</p>
+      <p>AI Voice Studio (Kinyarwanda & English), Local Services & Live Map Directory</p>
     </header>
 
     <div class="nav-tabs">
-      <button class="nav-tab active" id="userTab" onclick="switchView('user')">1. Merchant & Service Studio</button>
-      <button class="nav-tab" id="mapTab" onclick="switchView('map')">2. Find Shops, Barbers & Markets (Map)</button>
+      <button class="nav-tab active" id="userTab" onclick="switchView('user')">1. Voice & Visual Studio</button>
+      <button class="nav-tab" id="mapTab" onclick="switchView('map')">2. Map Directory (Shops & Markets)</button>
       <button class="nav-tab" id="adminTab" onclick="switchView('admin')">3. Admin Dashboard 🔒</button>
     </div>
 
-    <!-- 1. USER STUDIO VIEW -->
+    <!-- 1. USER & VOICE STUDIO VIEW -->
     <div id="userView" class="view-section" style="display: block;">
       <div class="card">
         <div class="form-grid">
           <div class="input-group">
-            <label for="whatsappNumber">📲 Seller / Business WhatsApp Number (Required):</label>
+            <label for="whatsappNumber">📲 Seller / Merchant WhatsApp Number (Required):</label>
             <input type="tel" id="whatsappNumber" class="input-field" placeholder="e.g. +250 788 000 000" required>
           </div>
           <div class="input-group">
-            <label for="serviceCategory">🏷️ Business or Product Type:</label>
+            <label for="serviceCategory">🏷️ Business or Product Category:</label>
             <select id="serviceCategory" class="input-field">
               <option value="Artisan Craft & Retail">Artisan Craft & Retail Product</option>
               <option value="Barber & Grooming Salon">Barber Shop & Hair Salon</option>
@@ -74,11 +99,11 @@
             </select>
           </div>
           <div class="input-group">
-            <label for="itemCustomName">✏️ Product or Shop Name (Optional):</label>
-            <input type="text" id="itemCustomName" class="input-field" placeholder="e.g. Kigali Classic Barber / Leather Shoes">
+            <label for="itemCustomName">✏️ Product or Shop Name:</label>
+            <input type="text" id="itemCustomName" class="input-field" placeholder="e.g. Ibyansi by'Amata / Kigali Barber">
           </div>
           <div class="input-group">
-            <label for="locationSelect">📍 Shop / Seller Area (For Map Directions):</label>
+            <label for="locationSelect">📍 Seller Location (For Map & Directions):</label>
             <select id="locationSelect" class="input-field">
               <option value="Kimironko Market, Kigali|-1.9487|30.1262">Kimironko Market, Kigali</option>
               <option value="Nyamirambo Commercial Hub|-1.9782|30.0447">Nyamirambo Commercial Hub</option>
@@ -89,54 +114,64 @@
           </div>
         </div>
 
-        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-          <p id="uploadLabel">📷 Click or Drag a Photo of Your Product, Barber Shop, or Market Stall</p>
+        <!-- VOICE TO LISTING FEATURE -->
+        <div class="voice-box">
+          <label style="font-weight: 600; color: #38bdf8; display:block; margin-bottom: 0.4rem;">🎙️ AI Voice-to-Listing (Speak in Kinyarwanda or English):</label>
+          <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">Click the microphone and describe your item or service out loud. It will automatically populate your product details!</p>
+          <button type="button" id="micBtn" class="mic-btn" onclick="toggleVoiceRecording()">
+            🎤 Start Voice Recording
+          </button>
+          <p id="voiceStatus" style="font-size: 0.85rem; color: #10b981; margin-top: 0.6rem; font-weight: 500;"></p>
+        </div>
+
+        <div class="upload-box" style="margin-top: 1.25rem;" onclick="document.getElementById('fileInput').click()">
+          <p id="uploadLabel">📷 Click or Drag Photo of Product / Storefront</p>
           <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewFile()">
         </div>
 
         <div class="preview-grid">
           <div>
-            <h4>1. Original Uploaded Photo</h4>
+            <h4>1. Original Photo</h4>
             <img id="rawPreview" alt="Raw Input">
           </div>
           <div>
-            <h4>2. Studio Enhanced Product View</h4>
+            <h4>2. Studio Enhanced View</h4>
             <img id="studioPreview" alt="Studio Output">
           </div>
         </div>
-        <button id="processBtn" onclick="processProduct()">Analyze Photo & Generate Commercial Listing</button>
+        <button id="processBtn" class="primary-action" onclick="processProduct()">Run AI Valuation & Generate Trilingual Campaign</button>
       </div>
 
       <div class="card result-box" id="resultCard">
-        <h3>3.  Product Valuation & Appraisal</h3>
+        <h3>3. AI Product Valuation & Appraisal</h3>
         <div>
           <span class="badge" id="categoryBadge">Category</span>
           <span class="badge" id="priceBadge">Price</span>
           <span class="badge" id="phoneBadge">Seller WhatsApp</span>
           <span class="badge" id="locationBadge">Location</span>
         </div>
-        <h2 id="productTitle" style="color: #38bdf8; margin-top: 0.75rem;"></h2>
-        <p><strong>Visual Photo Inspection & Description:</strong> <span id="photoDescription" style="color: #cbd5e1;"></span></p>
+        <h2 id="productTitle" style="color: var(--accent-cyan); margin-top: 0.75rem;"></h2>
+        <p><strong>Visual Inspection & Transcription:</strong> <span id="photoDescription" style="color: #cbd5e1;"></span></p>
 
-        <h3>4. Instant Multilingual Marketing Copy</h3>
-        <p><strong>🇬🇧 English:</strong> <span id="copyEn"></span></p>
+        <h3>4. Trilingual Marketing Copy (Kinyarwanda, English, French)</h3>
         <p><strong>🇷🇼 Kinyarwanda:</strong> <span id="copyRw"></span></p>
+        <p><strong>🇬🇧 English:</strong> <span id="copyEn"></span></p>
         <p><strong>🇫🇷 Français:</strong> <span id="copyFr"></span></p>
 
         <div class="wa-box" id="waMessagePreview"></div>
-        <a id="orderWhatsAppBtn" href="#" target="_blank" class="order-btn">🛒 Order / Book Appointment on WhatsApp Now</a>
-        <a id="mapDirectionsBtn" href="#" target="_blank" class="order-btn" style="background: #0284c7; margin-top: 0.5rem;">🗺️ Open Seller Location & Directions in Google Maps</a>
+        <a id="orderWhatsAppBtn" href="#" target="_blank" class="order-btn">🛒 Order / Book on WhatsApp Now</a>
+        <a id="mapDirectionsBtn" href="#" target="_blank" class="order-btn" style="background: #0284c7; margin-top: 0.75rem;">🗺️ Open Location & Directions in Google Maps</a>
       </div>
     </div>
 
-    <!-- 2. LOCAL SERVICES & MAP VIEW -->
+    <!-- 2. MAP DIRECTORY VIEW -->
     <div id="mapView" class="view-section">
       <div class="card">
-        <h3>Explore Nearby Shops, Barber Salons & Markets</h3>
-        <p>Click any category below or select a pin on the map to connect with the seller on WhatsApp or get turn-by-turn directions.</p>
+        <h3>Live Directory: Shops, Barbers & Markets</h3>
+        <p>Explore verified local vendors. Click category filters or map pins to connect via WhatsApp or get directions.</p>
         <div class="filter-bar">
-          <button class="filter-btn active" onclick="filterDirectory('all', this)">All Locations</button>
-          <button class="filter-btn" onclick="filterDirectory('Barber', this)">💈 Barber Shops & Salons</button>
+          <button class="filter-btn active" onclick="filterDirectory('all', this)">All Places</button>
+          <button class="filter-btn" onclick="filterDirectory('Barber', this)">💈 Barbers & Salons</button>
           <button class="filter-btn" onclick="filterDirectory('Market', this)">🥬 Local Markets</button>
           <button class="filter-btn" onclick="filterDirectory('Craft', this)">🧺 Crafts & Tailors</button>
         </div>
@@ -145,25 +180,25 @@
       </div>
     </div>
 
-    <!-- 3. ADMIN VIEW -->
+    <!-- 3. ADMIN DASHBOARD VIEW -->
     <div id="adminView" class="view-section">
       <div class="card">
-        <h3>Admin Orders, Locations & System Telemetry</h3>
-        <p>Review merchant submissions, customer booking links, coordinates, and complete backend response payloads.</p>
+        <h3>Admin Orders, Telemetry & Location Logs</h3>
+        <p>Review customer bookings, seller contacts, coordinates, and full backend model telemetry JSON payloads.</p>
         <table>
           <thead>
             <tr>
               <th>Time</th>
               <th>Seller WhatsApp</th>
-              <th>Listing / Service</th>
+              <th>Item / Service</th>
               <th>Location</th>
-              <th>Price (RWF)</th>
-              <th>Action</th>
+              <th>Price</th>
+              <th>Telemetry Action</th>
             </tr>
           </thead>
           <tbody id="adminOrderTable">
             <tr>
-              <td colspan="6" style="text-align: center; color: #64748b;">No orders or listings logged yet.</td>
+              <td colspan="6" style="text-align: center; color: var(--text-muted);">No orders logged yet. Generate a listing in Tab 1 first.</td>
             </tr>
           </tbody>
         </table>
@@ -171,13 +206,13 @@
     </div>
   </div>
 
-  <!-- CLICKABLE ADMIN MODAL -->
+  <!-- ADMIN TELEMETRY MODAL -->
   <div class="modal-overlay" id="telemetryModal">
     <div class="modal-content">
-      <h3 id="modalTitle" style="color: #38bdf8; margin-top: 0;">Order & System Telemetry Details</h3>
+      <h3 id="modalTitle" style="color: var(--accent-cyan); margin-top: 0;">Order & System Telemetry Details</h3>
       <p id="modalSummary" style="color: #cbd5e1; font-size: 0.9rem;"></p>
       <pre class="modal-pre" id="modalJsonContent"></pre>
-      <button onclick="closeModal()" style="background: #ef4444; margin-top: 1rem;">Close Window</button>
+      <button onclick="closeModal()" style="background: #dc2626; margin-top: 1.25rem; width: auto; padding: 0.6rem 1.2rem;">Close Window</button>
     </div>
   </div>
 
@@ -190,13 +225,68 @@
     let mapInstance = null;
     let mapMarkers = [];
 
-    // Pre-loaded local shops, barbers, and markets in Kigali
     let directoryPlaces = [
-      { name: "Nyamirambo Executive Barber Shop", category: "Barber & Grooming Salon", area: "Nyamirambo Commercial Hub", lat: -1.9782, lng: 30.0447, price: "5,000 RWF", phone: "+250788100200" },
-      { name: "Kimironko Central Fresh Market", category: "Local Market & Fresh Produce", area: "Kimironko Market, Kigali", lat: -1.9487, lng: 30.1262, price: "3,500 RWF", phone: "+250788300400" },
-      { name: "Remera Gisimenti Gentleman's Barber", category: "Barber & Grooming Salon", area: "Remera Gisimenti Hub", lat: -1.9592, lng: 30.1095, price: "6,000 RWF", phone: "+250788500600" },
-      { name: "Kigali Downtown Tailors & Crafts", category: "Artisan Craft & Retail", area: "Downtown Kigali City Center", lat: -1.9441, lng: 30.0619, price: "15,000 RWF", phone: "+250788700800" }
+      { name: "Nyamirambo Executive Barber", category: "Barber & Grooming Salon", area: "Nyamirambo Commercial Hub", lat: -1.9782, lng: 30.0447, price: "5,000 RWF", phone: "+250788100200" },
+      { name: "Kimironko Fresh Market Stall", category: "Local Market & Fresh Produce", area: "Kimironko Market, Kigali", lat: -1.9487, lng: 30.1262, price: "3,500 RWF", phone: "+250788300400" },
+      { name: "Remera Gisimenti Barber", category: "Barber & Grooming Salon", area: "Remera Gisimenti Hub", lat: -1.9592, lng: 30.1095, price: "6,000 RWF", phone: "+250788500600" },
+      { name: "Downtown Kigali Kitenge Tailors", category: "Artisan Craft & Retail", area: "Downtown Kigali City Center", lat: -1.9441, lng: 30.0619, price: "15,000 RWF", phone: "+250788700800" }
     ];
+
+    // --- VOICE TO LISTING WEB SPEECH API ---
+    let recognition = null;
+    let isRecording = false;
+
+    function toggleVoiceRecording() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
+        return;
+      }
+
+      if (!isRecording) {
+        recognition = new SpeechRecognition();
+        // Support both Kinyarwanda and English recognition
+        recognition.lang = 'rw-RW'; 
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+          isRecording = true;
+          document.getElementById('micBtn').classList.add('recording');
+          document.getElementById('micBtn').innerText = "🔴 Listening... Speak Now";
+          document.getElementById('voiceStatus').innerText = "Listening in Kinyarwanda / English...";
+        };
+
+        recognition.onresult = function(event) {
+          const transcript = event.results[0][0].transcript;
+          document.getElementById('itemCustomName').value = transcript;
+          document.getElementById('voiceStatus').innerText = `✅ Captured: "${transcript}"`;
+        };
+
+        recognition.onerror = function(event) {
+          document.getElementById('voiceStatus').innerText = "⚠️ Voice error: " + event.error + ". Try speaking clearly.";
+          stopMicUI();
+        };
+
+        recognition.onend = function() {
+          stopMicUI();
+        };
+
+        recognition.start();
+      } else {
+        if (recognition) recognition.stop();
+        stopMicUI();
+      }
+    }
+
+    function stopMicUI() {
+      isRecording = false;
+      const btn = document.getElementById('micBtn');
+      if (btn) {
+        btn.classList.remove('recording');
+        btn.innerText = "🎤 Start Voice Recording";
+      }
+    }
 
     function switchView(view) {
       if (view === 'admin' && !isAdminAuthenticated) {
@@ -228,7 +318,7 @@
       const file = document.getElementById('fileInput').files[0];
       if (!file) return;
       uploadedFileName = file.name;
-      document.getElementById('uploadLabel').innerText = "📷 Selected Photo: " + file.name;
+      document.getElementById('uploadLabel').innerText = "📷 Photo Loaded: " + file.name;
       const reader = new FileReader();
       reader.onloadend = function() {
         base64String = reader.result.split(',')[1];
@@ -259,7 +349,7 @@
       const lng = parseFloat(locParts[2]);
 
       const btn = document.getElementById('processBtn');
-      btn.innerText = "Inspecting Photo & Building Commercial Listing...";
+      btn.innerText = "Processing AI Pipeline & Trilingual Translation...";
       btn.disabled = true;
 
       try {
@@ -293,8 +383,8 @@
         document.getElementById('locationBadge').innerText = "📍 " + locName;
         document.getElementById('photoDescription').innerText = wonder.description || "";
 
-        document.getElementById('copyEn').innerText = spark.ad_copy_en || "";
         document.getElementById('copyRw').innerText = spark.ad_copy_rw || "";
+        document.getElementById('copyEn').innerText = spark.ad_copy_en || "";
         document.getElementById('copyFr').innerText = spark.ad_copy_fr || "";
         document.getElementById('waMessagePreview').innerText = data.whatsapp_formatted_message || "";
 
@@ -307,7 +397,6 @@
         studioImg.src = document.getElementById('rawPreview').src;
         studioImg.style.display = 'block';
 
-        // Add to live map directory & admin orders list
         directoryPlaces.unshift({
           name: wonder.title,
           category: wonder.category,
@@ -330,7 +419,7 @@
       } catch (err) {
         alert("Error: " + err.message);
       } finally {
-        btn.innerText = "Analyze Photo & Generate Commercial Listing";
+        btn.innerText = "Run AI Valuation & Generate Trilingual Campaign";
         btn.disabled = false;
       }
     }
@@ -355,14 +444,14 @@
         const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello! I found ' + p.name + ' on KuraCommerce Map.')}`;
         const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
         return `
-          <div style="background:#0f172a; padding:1rem; border-radius:8px; border:1px solid #334155;">
+          <div style="background:#0b111e; padding:1.1rem; border-radius:10px; border:1px solid #283548;">
             <span class="badge">${p.category}</span>
-            <h4 style="margin:0.4rem 0; color:#38bdf8;">${p.name}</h4>
+            <h4 style="margin:0.4rem 0; color:var(--accent-cyan);">${p.name}</h4>
             <p style="margin:0.25rem 0; font-size:0.85rem; color:#cbd5e1;">📍 ${p.area} | 💰 ${p.price}</p>
-            <p style="margin:0.25rem 0; font-size:0.85rem; color:#94a3b8;">📲 Seller: ${p.phone}</p>
-            <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-              <a href="${waUrl}" target="_blank" style="flex:1; background:#10b981; color:white; text-align:center; padding:0.45rem; border-radius:6px; text-decoration:none; font-size:0.85rem; font-weight:600;">WhatsApp Seller</a>
-              <a href="${gmapsUrl}" target="_blank" style="flex:1; background:#0284c7; color:white; text-align:center; padding:0.45rem; border-radius:6px; text-decoration:none; font-size:0.85rem; font-weight:600;">Directions</a>
+            <p style="margin:0.25rem 0; font-size:0.85rem; color:#94a3b8;">📲 WhatsApp: ${p.phone}</p>
+            <div style="display:flex; gap:0.5rem; margin-top:0.85rem;">
+              <a href="${waUrl}" target="_blank" style="flex:1; background:var(--accent-green); color:white; text-align:center; padding:0.5rem; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:700;">WhatsApp</a>
+              <a href="${gmapsUrl}" target="_blank" style="flex:1; background:#0284c7; color:white; text-align:center; padding:0.5rem; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:700;">Directions</a>
             </div>
           </div>
         `;
@@ -384,7 +473,7 @@
     function renderAdminTable() {
       const tbody = document.getElementById('adminOrderTable');
       if (ordersList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">No orders or listings logged yet. Generate a listing in tab 1 first.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No orders or listings logged yet. Generate a listing in tab 1 first.</td></tr>`;
         return;
       }
       tbody.innerHTML = ordersList.map((o, idx) => `
@@ -396,7 +485,7 @@
           <td>${o.price}</td>
           <td>
             <button onclick="openTelemetryModal(${idx})" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; margin: 0; width: auto; background: #0284c7;">
-              🔍 View Order & Telemetry JSON
+              🔍 View Telemetry JSON
             </button>
           </td>
         </tr>
@@ -406,8 +495,8 @@
     function openTelemetryModal(index) {
       const item = ordersList[index];
       if (!item) return;
-      document.getElementById('modalTitle').innerText = `Order & Telemetry: ${item.title}`;
-      document.getElementById('modalSummary').innerText = `Seller WhatsApp: ${item.phone} | Location: ${item.location} | Price: ${item.price}`;
+      document.getElementById('modalTitle').innerText = `Telemetry: ${item.title}`;
+      document.getElementById('modalSummary').innerText = `Seller: ${item.phone} | Location: ${item.location} | Price: ${item.price}`;
       document.getElementById('modalJsonContent').innerText = JSON.stringify(item.payload, null, 2);
       document.getElementById('telemetryModal').style.display = 'flex';
     }

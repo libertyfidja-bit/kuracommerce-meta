@@ -19,12 +19,7 @@ def health():
         "project": "KuraCommerce",
         "track": "Indie Developer",
         "theme": "Build for Your World",
-        "allowed_models_integrated": [
-            "sam-3.1",
-            "muse-wonder",
-            "muse-image",
-            "muse-spark"
-        ],
+        "allowed_models_integrated": ["sam-3.1", "muse-wonder", "muse-image", "muse-spark"],
         "status": "online"
     }), 200
 
@@ -33,37 +28,39 @@ def process_product():
     data = request.get_json(silent=True) or {}
     raw_image = data.get("image_base64", "").strip()
     user_phone = data.get("whatsapp_number", "").strip()
+    filename = data.get("filename", "").strip()
+    category_hint = data.get("service_category", "Product / Craft").strip()
+    location_name = data.get("location_name", "Kigali, Rwanda").strip()
+    lat = data.get("lat", -1.9441)
+    lng = data.get("lng", 30.0619)
 
     if not user_phone:
         return jsonify({"error": "Please enter your WhatsApp phone number."}), 400
     if not raw_image:
         return jsonify({"error": "Missing 'image_base64' in request."}), 400
 
-    # 1. SAM 3.1: Isolate foreground craft
     sam_result = segment_product_with_sam(raw_image)
-
-    # 2. Muse Wonder: Visual reasoning & price appraisal
-    wonder_metadata = analyze_product_with_muse_wonder(raw_image)
-
-    # 3. Muse Image: Studio background synthesis
-    product_title = wonder_metadata.get("title", "Artisan Product")
+    wonder_metadata = analyze_product_with_muse_wonder(raw_image, filename, category_hint)
+    product_title = wonder_metadata.get("title", "Featured Listing")
     image_synthesis = synthesize_studio_with_muse_image(raw_image, product_title)
-
-    # 4. Muse Spark: Multilingual WhatsApp ad copy (EN, RW, FR)
-    spark_campaign = generate_ads_with_muse_spark(wonder_metadata)
+    spark_campaign = generate_ads_with_muse_spark(wonder_metadata, location_name)
 
     whatsapp_reply = (
-        f"✅ *KuraCommerce Studio Ready for {user_phone}!*\n\n"
-        f"📦 *Product:* {wonder_metadata.get('title')}\n"
-        f"💰 *Suggested Price:* {wonder_metadata.get('estimated_price_rwf')} RWF\n\n"
-        f"🇷🇼 *Kinyarwanda Ad:*\n{spark_campaign.get('ad_copy_rw')}\n\n"
-        f"🇬🇧 *English Ad:*\n{spark_campaign.get('ad_copy_en')}\n\n"
-        f"📲 *Order via WhatsApp:* {user_phone}"
+        f"✅ *KuraCommerce Listing Ready!*\n\n"
+        f"🏷️ *Listing:* {wonder_metadata.get('title')}\n"
+        f"📂 *Category:* {wonder_metadata.get('category')}\n"
+        f"📍 *Location:* {location_name}\n"
+        f"💰 *Estimated Rate/Price:* {wonder_metadata.get('estimated_price_rwf')} RWF\n\n"
+        f"🇷🇼 *Kinyarwanda:*\n{spark_campaign.get('ad_copy_rw')}\n\n"
+        f"🇬🇧 *English:*\n{spark_campaign.get('ad_copy_en')}\n\n"
+        f"📲 *Seller WhatsApp:* {user_phone}"
     )
 
     return jsonify({
         "success": True,
         "merchant_whatsapp": user_phone,
+        "location_name": location_name,
+        "coordinates": {"lat": lat, "lng": lng},
         "models_executed": ["sam-3.1", "muse-wonder", "muse-image", "muse-spark"],
         "segmentation_status": "processed",
         "sam_3_1_output": sam_result,
@@ -75,7 +72,6 @@ def process_product():
 
 @app.route("/api/whatsapp-webhook", methods=["POST"])
 def whatsapp_webhook():
-    """Handles incoming WhatsApp payloads and requires a valid user phone number."""
     incoming = request.get_json(silent=True) or {}
     sender_phone = incoming.get("from", "").strip()
     image_b64 = incoming.get("image_base64", "").strip()
@@ -85,19 +81,15 @@ def whatsapp_webhook():
     if not image_b64:
         return jsonify({"error": "No media found in WhatsApp payload"}), 400
 
-    sam_result = segment_product_with_sam(image_b64)
-    wonder_metadata = analyze_product_with_muse_wonder(image_b64)
-    product_title = wonder_metadata.get("title", "Artisan Product")
-    image_synthesis = synthesize_studio_with_muse_image(image_b64, product_title)
-    spark_campaign = generate_ads_with_muse_spark(wonder_metadata)
+    wonder_metadata = analyze_product_with_muse_wonder(image_b64, "WhatsApp Upload", "Local Commerce")
+    spark_campaign = generate_ads_with_muse_spark(wonder_metadata, "Kigali")
 
     whatsapp_reply = (
-        f"✅ *KuraCommerce Studio Ready!*\n\n"
-        f"📦 *Product:* {wonder_metadata.get('title')}\n"
-        f"💰 *Suggested Price:* {wonder_metadata.get('estimated_price_rwf')} RWF\n\n"
-        f"🇷🇼 *Kinyarwanda Ad:*\n{spark_campaign.get('ad_copy_rw')}\n\n"
-        f"🇬🇧 *English Ad:*\n{spark_campaign.get('ad_copy_en')}\n\n"
-        f"📲 *Contact Seller on WhatsApp:* {sender_phone}"
+        f"✅ *KuraCommerce Listing Ready!*\n\n"
+        f"📦 *Item:* {wonder_metadata.get('title')}\n"
+        f"💰 *Price:* {wonder_metadata.get('estimated_price_rwf')} RWF\n\n"
+        f"🇷🇼 {spark_campaign.get('ad_copy_rw')}\n\n"
+        f"📲 *WhatsApp:* {sender_phone}"
     )
 
     return jsonify({

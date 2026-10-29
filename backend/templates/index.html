@@ -3,61 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KuraCommerce Portal & Admin Dashboard</title>
+  <title>KuraCommerce | AI Studio & Local Service Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }
-    .container { max-width: 960px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 1rem; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 1.5rem; }
+    .container { max-width: 1020px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 1.25rem; }
     h1 { color: #38bdf8; margin-bottom: 0.25rem; }
-    .nav-tabs { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; }
-    .nav-tab { background: #1e293b; border: 1px solid #475569; color: #cbd5e1; padding: 0.5rem 1.25rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .nav-tabs { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .nav-tab { background: #1e293b; border: 1px solid #475569; color: #cbd5e1; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; width: auto; margin-top: 0; }
     .nav-tab.active { background: #0284c7; color: white; border-color: #0284c7; }
     .card { background: #1e293b; border-radius: 12px; padding: 1.5rem; border: 1px solid #334155; margin-bottom: 1.5rem; }
-    .input-group { margin-bottom: 1.25rem; }
-    .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #cbd5e1; }
-    .phone-input { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-size: 1rem; box-sizing: border-box; }
-    .upload-box { border: 2px dashed #475569; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .input-group { margin-bottom: 0.75rem; }
+    .input-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #cbd5e1; font-size: 0.9rem; }
+    .input-field { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+    .upload-box { border: 2px dashed #38bdf8; border-radius: 8px; padding: 1.75rem; text-align: center; cursor: pointer; background: rgba(56, 189, 248, 0.05); }
     button { background: #0284c7; color: white; border: none; border-radius: 8px; padding: 0.85rem 1.5rem; font-weight: 600; cursor: pointer; margin-top: 1rem; width: 100%; font-size: 1rem; }
     button:hover { background: #0369a1; }
     .order-btn { background: #10b981; margin-top: 1rem; text-decoration: none; display: block; text-align: center; padding: 0.85rem; border-radius: 8px; color: white; font-weight: 600; }
     .order-btn:hover { background: #059669; }
     .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
     img { max-width: 100%; border-radius: 8px; border: 1px solid #475569; display: none; }
-    .result-box, .admin-view { display: none; }
-    .badge { display: inline-block; background: #0369a1; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.85rem; margin-right: 0.5rem; }
+    .result-box, .view-section { display: none; }
+    .badge { display: inline-block; background: #0369a1; padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.85rem; margin-right: 0.5rem; margin-bottom: 0.4rem; }
     .wa-box { background: #064e3b; border: 1px solid #10b981; padding: 1rem; border-radius: 8px; white-space: pre-wrap; margin-top: 1rem; color: #ecfdf5; }
+    #map { height: 380px; width: 100%; border-radius: 10px; border: 1px solid #475569; margin-top: 1rem; }
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-btn { width: auto; margin-top: 0; padding: 0.45rem 0.9rem; font-size: 0.85rem; background: #334155; }
+    .filter-btn.active { background: #10b981; }
     table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
     th, td { border: 1px solid #334155; padding: 0.75rem; text-align: left; }
-    th { background: #1e293b; color: #38bdf8; }
+    th { background: #0f172a; color: #38bdf8; }
+    /* Modal for Admin Details */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-content { background: #1e293b; border: 1px solid #38bdf8; border-radius: 12px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.5rem; }
+    .modal-pre { background: #0f172a; padding: 1rem; border-radius: 8px; color: #a5f3fc; overflow-x: auto; font-size: 0.85rem; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>KuraCommerce Portal</h1>
-      <p>Empowering Rwandan Artisans with Multimodal AI Commerce</p>
+      <h1>KuraCommerce Hub</h1>
+      <p>Smart Product Studio, Local Services (Barbers, Tailors, Markets) & Live Location Finder</p>
     </header>
 
     <div class="nav-tabs">
-      <button class="nav-tab active" id="userTab" onclick="switchView('user')">User View (Storefront)</button>
-      <button class="nav-tab" id="adminTab" onclick="switchView('admin')">Admin Dashboard (Password Protected)</button>
+      <button class="nav-tab active" id="userTab" onclick="switchView('user')">1. Merchant & Service Studio</button>
+      <button class="nav-tab" id="mapTab" onclick="switchView('map')">2. Find Shops, Barbers & Markets (Map)</button>
+      <button class="nav-tab" id="adminTab" onclick="switchView('admin')">3. Admin Dashboard 🔒</button>
     </div>
 
-    <!-- USER VIEW -->
-    <div id="userView">
+    <!-- 1. USER STUDIO VIEW -->
+    <div id="userView" class="view-section" style="display: block;">
       <div class="card">
-        <div class="input-group">
-          <label for="whatsappNumber">📲 Your WhatsApp Business / Merchant Number (Required):</label>
-          <input type="tel" id="whatsappNumber" class="phone-input" placeholder="e.g. +250 780 000 000" required>
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="whatsappNumber">📲 Seller / Business WhatsApp Number (Required):</label>
+            <input type="tel" id="whatsappNumber" class="input-field" placeholder="e.g. +250 788 000 000" required>
+          </div>
+          <div class="input-group">
+            <label for="serviceCategory">🏷️ Business or Product Type:</label>
+            <select id="serviceCategory" class="input-field">
+              <option value="Artisan Craft & Retail">Artisan Craft & Retail Product</option>
+              <option value="Barber & Grooming Salon">Barber Shop & Hair Salon</option>
+              <option value="Local Market & Fresh Produce">Local Market & Fresh Produce</option>
+              <option value="Fashion & Custom Tailoring">Fashion & Custom Tailoring</option>
+              <option value="Electronics & Repair">Electronics & Repair Shop</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="itemCustomName">✏️ Product or Shop Name (Optional):</label>
+            <input type="text" id="itemCustomName" class="input-field" placeholder="e.g. Kigali Classic Barber / Leather Shoes">
+          </div>
+          <div class="input-group">
+            <label for="locationSelect">📍 Shop / Seller Area (For Map Directions):</label>
+            <select id="locationSelect" class="input-field">
+              <option value="Kimironko Market, Kigali|-1.9487|30.1262">Kimironko Market, Kigali</option>
+              <option value="Nyamirambo Commercial Hub|-1.9782|30.0447">Nyamirambo Commercial Hub</option>
+              <option value="Downtown Kigali City Center|-1.9441|30.0619">Downtown Kigali City Center</option>
+              <option value="Remera Gisimenti Hub|-1.9592|30.1095">Remera Gisimenti Hub</option>
+              <option value="Nyabugogo Market Area|-1.9398|30.0444">Nyabugogo Market Area</option>
+            </select>
+          </div>
         </div>
 
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-          <p>📷 Click to Upload Raw Artisan Product Photo</p>
+          <p id="uploadLabel">📷 Click or Drag a Photo of Your Product, Barber Shop, or Market Stall</p>
           <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewFile()">
         </div>
+
         <div class="preview-grid">
           <div>
-            <h4>1. Raw Phone Snapshot</h4>
+            <h4>1. Original Uploaded Photo</h4>
             <img id="rawPreview" alt="Raw Input">
           </div>
           <div>
@@ -65,47 +104,66 @@
             <img id="studioPreview" alt="Studio Output">
           </div>
         </div>
-        <button id="processBtn" onclick="processProduct()">Run Full Meta Model API Pipeline</button>
+        <button id="processBtn" onclick="processProduct()">Analyze Photo & Generate Commercial Listing</button>
       </div>
 
       <div class="card result-box" id="resultCard">
-        <h3>3. Muse Wonder Valuation & Appraisal</h3>
+        <h3>3.  Product Valuation & Appraisal</h3>
         <div>
           <span class="badge" id="categoryBadge">Category</span>
           <span class="badge" id="priceBadge">Price</span>
-          <span class="badge" id="phoneBadge">Merchant Number</span>
+          <span class="badge" id="phoneBadge">Seller WhatsApp</span>
+          <span class="badge" id="locationBadge">Location</span>
         </div>
         <h2 id="productTitle" style="color: #38bdf8; margin-top: 0.75rem;"></h2>
-        <p><strong>Photo Description:</strong> <span id="photoDescription" style="color: #cbd5e1;"></span></p>
+        <p><strong>Visual Photo Inspection & Description:</strong> <span id="photoDescription" style="color: #cbd5e1;"></span></p>
 
-        <h3>4. Multilingual WhatsApp Campaign</h3>
+        <h3>4. Instant Multilingual Marketing Copy</h3>
         <p><strong>🇬🇧 English:</strong> <span id="copyEn"></span></p>
         <p><strong>🇷🇼 Kinyarwanda:</strong> <span id="copyRw"></span></p>
         <p><strong>🇫🇷 Français:</strong> <span id="copyFr"></span></p>
 
         <div class="wa-box" id="waMessagePreview"></div>
-        <a id="orderWhatsAppBtn" href="#" target="_blank" class="order-btn">🛒 Order / Buy on WhatsApp Now</a>
+        <a id="orderWhatsAppBtn" href="#" target="_blank" class="order-btn">🛒 Order / Book Appointment on WhatsApp Now</a>
+        <a id="mapDirectionsBtn" href="#" target="_blank" class="order-btn" style="background: #0284c7; margin-top: 0.5rem;">🗺️ Open Seller Location & Directions in Google Maps</a>
       </div>
     </div>
 
-    <!-- ADMIN VIEW -->
-    <div id="adminView" class="admin-view">
+    <!-- 2. LOCAL SERVICES & MAP VIEW -->
+    <div id="mapView" class="view-section">
       <div class="card">
-        <h3>Admin Orders & Full Pipeline Telemetry</h3>
-        <p>Review customer submissions, contact numbers, addresses, and complete payload logs.</p>
+        <h3>Explore Nearby Shops, Barber Salons & Markets</h3>
+        <p>Click any category below or select a pin on the map to connect with the seller on WhatsApp or get turn-by-turn directions.</p>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterDirectory('all', this)">All Locations</button>
+          <button class="filter-btn" onclick="filterDirectory('Barber', this)">💈 Barber Shops & Salons</button>
+          <button class="filter-btn" onclick="filterDirectory('Market', this)">🥬 Local Markets</button>
+          <button class="filter-btn" onclick="filterDirectory('Craft', this)">🧺 Crafts & Tailors</button>
+        </div>
+        <div id="map"></div>
+        <div id="directoryCards" style="margin-top: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"></div>
+      </div>
+    </div>
+
+    <!-- 3. ADMIN VIEW -->
+    <div id="adminView" class="view-section">
+      <div class="card">
+        <h3>Admin Orders, Locations & System Telemetry</h3>
+        <p>Review merchant submissions, customer booking links, coordinates, and complete backend response payloads.</p>
         <table>
           <thead>
             <tr>
               <th>Time</th>
-              <th>Merchant Number</th>
-              <th>Product Title</th>
+              <th>Seller WhatsApp</th>
+              <th>Listing / Service</th>
+              <th>Location</th>
               <th>Price (RWF)</th>
-              <th>Full Payload Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="adminOrderTable">
             <tr>
-              <td colspan="5" style="text-align: center; color: #64748b;">No recent orders recorded yet. Run a product process in User View to log data.</td>
+              <td colspan="6" style="text-align: center; color: #64748b;">No orders or listings logged yet.</td>
             </tr>
           </tbody>
         </table>
@@ -113,46 +171,72 @@
     </div>
   </div>
 
+  <!-- CLICKABLE ADMIN MODAL -->
+  <div class="modal-overlay" id="telemetryModal">
+    <div class="modal-content">
+      <h3 id="modalTitle" style="color: #38bdf8; margin-top: 0;">Order & System Telemetry Details</h3>
+      <p id="modalSummary" style="color: #cbd5e1; font-size: 0.9rem;"></p>
+      <pre class="modal-pre" id="modalJsonContent"></pre>
+      <button onclick="closeModal()" style="background: #ef4444; margin-top: 1rem;">Close Window</button>
+    </div>
+  </div>
+
   <script>
     let base64String = "";
+    let uploadedFileName = "";
     let ordersList = [];
     let isAdminAuthenticated = false;
-    const ADMIN_PASSWORD = "admin123"; // You can change this password easily here
+    const ADMIN_PASSWORD = "admin123";
+    let mapInstance = null;
+    let mapMarkers = [];
+
+    // Pre-loaded local shops, barbers, and markets in Kigali
+    let directoryPlaces = [
+      { name: "Nyamirambo Executive Barber Shop", category: "Barber & Grooming Salon", area: "Nyamirambo Commercial Hub", lat: -1.9782, lng: 30.0447, price: "5,000 RWF", phone: "+250788100200" },
+      { name: "Kimironko Central Fresh Market", category: "Local Market & Fresh Produce", area: "Kimironko Market, Kigali", lat: -1.9487, lng: 30.1262, price: "3,500 RWF", phone: "+250788300400" },
+      { name: "Remera Gisimenti Gentleman's Barber", category: "Barber & Grooming Salon", area: "Remera Gisimenti Hub", lat: -1.9592, lng: 30.1095, price: "6,000 RWF", phone: "+250788500600" },
+      { name: "Kigali Downtown Tailors & Crafts", category: "Artisan Craft & Retail", area: "Downtown Kigali City Center", lat: -1.9441, lng: 30.0619, price: "15,000 RWF", phone: "+250788700800" }
+    ];
 
     function switchView(view) {
-      if (view === 'user') {
-        document.getElementById('userView').style.display = 'block';
-        document.getElementById('adminView').style.display = 'none';
-        document.getElementById('userTab').classList.add('active');
-        document.getElementById('adminTab').classList.remove('active');
-      } else {
-        if (!isAdminAuthenticated) {
-          const pwd = prompt("Enter Admin Password to access dashboard:");
-          if (pwd === ADMIN_PASSWORD) {
-            isAdminAuthenticated = true;
-          } else {
-            alert("Incorrect password! Access denied.");
-            return;
-          }
+      if (view === 'admin' && !isAdminAuthenticated) {
+        const pwd = prompt("Enter Admin Password (default: admin123):");
+        if (pwd === ADMIN_PASSWORD) {
+          isAdminAuthenticated = true;
+        } else {
+          alert("Incorrect password! Access denied.");
+          return;
         }
-        document.getElementById('userView').style.display = 'none';
-        document.getElementById('adminView').style.display = 'block';
-        document.getElementById('adminTab').classList.add('active');
-        document.getElementById('userTab').classList.remove('active');
+      }
+
+      document.getElementById('userView').style.display = (view === 'user') ? 'block' : 'none';
+      document.getElementById('mapView').style.display = (view === 'map') ? 'block' : 'none';
+      document.getElementById('adminView').style.display = (view === 'admin') ? 'block' : 'none';
+
+      document.getElementById('userTab').classList.toggle('active', view === 'user');
+      document.getElementById('mapTab').classList.toggle('active', view === 'map');
+      document.getElementById('adminTab').classList.toggle('active', view === 'admin');
+
+      if (view === 'map') {
+        initOrRefreshMap('all');
+      } else if (view === 'admin') {
         renderAdminTable();
       }
     }
 
     function previewFile() {
       const file = document.getElementById('fileInput').files[0];
+      if (!file) return;
+      uploadedFileName = file.name;
+      document.getElementById('uploadLabel').innerText = "📷 Selected Photo: " + file.name;
       const reader = new FileReader();
       reader.onloadend = function() {
         base64String = reader.result.split(',')[1];
         const preview = document.getElementById('rawPreview');
         preview.src = reader.result;
         preview.style.display = 'block';
-      }
-      if (file) reader.readAsDataURL(file);
+      };
+      reader.readAsDataURL(file);
     }
 
     async function processProduct() {
@@ -163,12 +247,19 @@
         return;
       }
       if (!base64String) {
-        alert("Please select a product image first!");
+        alert("Please select or drag in a photo first!");
         return;
       }
 
+      const customName = document.getElementById('itemCustomName').value.trim();
+      const serviceCat = document.getElementById('serviceCategory').value;
+      const locParts = document.getElementById('locationSelect').value.split('|');
+      const locName = locParts[0];
+      const lat = parseFloat(locParts[1]);
+      const lng = parseFloat(locParts[2]);
+
       const btn = document.getElementById('processBtn');
-      btn.innerText = "Analyzing photo and generating appraisal...";
+      btn.innerText = "Inspecting Photo & Building Commercial Listing...";
       btn.disabled = true;
 
       try {
@@ -177,7 +268,12 @@
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             whatsapp_number: phoneInput,
-            image_base64: base64String
+            image_base64: base64String,
+            filename: customName || uploadedFileName,
+            service_category: serviceCat,
+            location_name: locName,
+            lat: lat,
+            lng: lng
           })
         });
         const data = await res.json();
@@ -187,60 +283,137 @@
         }
 
         document.getElementById('resultCard').style.display = 'block';
-
         const wonder = data.muse_wonder_catalog || {};
         const spark = data.muse_spark_campaign || {};
 
-        document.getElementById('productTitle').innerText = wonder.title || "Artisan Craft Product";
-        document.getElementById('categoryBadge').innerText = wonder.category || "Crafts";
-        document.getElementById('priceBadge').innerText = (wonder.estimated_price_rwf || "18,500") + " RWF";
-        document.getElementById('phoneBadge').innerText = "Seller: " + data.merchant_whatsapp;
-        document.getElementById('photoDescription').innerText = wonder.description || "A meticulously handcrafted artisan product featuring traditional Rwandan design patterns and natural organic materials.";
+        document.getElementById('productTitle').innerText = wonder.title || customName || "Featured Listing";
+        document.getElementById('categoryBadge').innerText = wonder.category || serviceCat;
+        document.getElementById('priceBadge').innerText = (wonder.estimated_price_rwf || "10,000") + " RWF";
+        document.getElementById('phoneBadge').innerText = "WhatsApp: " + data.merchant_whatsapp;
+        document.getElementById('locationBadge').innerText = "📍 " + locName;
+        document.getElementById('photoDescription').innerText = wonder.description || "";
 
         document.getElementById('copyEn').innerText = spark.ad_copy_en || "";
         document.getElementById('copyRw').innerText = spark.ad_copy_rw || "";
         document.getElementById('copyFr').innerText = spark.ad_copy_fr || "";
         document.getElementById('waMessagePreview').innerText = data.whatsapp_formatted_message || "";
 
-        const waText = encodeURIComponent(`Hello, I would like to order ${wonder.title} priced at ${wonder.estimated_price_rwf} RWF.`);
+        const waText = encodeURIComponent(`Hello! I saw your listing "${wonder.title}" (${wonder.estimated_price_rwf} RWF) at ${locName} on KuraCommerce and would like to order/book.`);
         const cleanPhone = data.merchant_whatsapp.replace(/[^0-9]/g, '');
         document.getElementById('orderWhatsAppBtn').href = `https://wa.me/${cleanPhone}?text=${waText}`;
+        document.getElementById('mapDirectionsBtn').href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
         const studioImg = document.getElementById('studioPreview');
         studioImg.src = document.getElementById('rawPreview').src;
         studioImg.style.display = 'block';
 
+        // Add to live map directory & admin orders list
+        directoryPlaces.unshift({
+          name: wonder.title,
+          category: wonder.category,
+          area: locName,
+          lat: lat,
+          lng: lng,
+          price: (wonder.estimated_price_rwf || "10,000") + " RWF",
+          phone: data.merchant_whatsapp
+        });
+
         ordersList.unshift({
           time: new Date().toLocaleTimeString(),
           phone: data.merchant_whatsapp,
-          title: wonder.title || "Artisan Craft Product",
-          price: (wonder.estimated_price_rwf || "18,500") + " RWF",
+          title: wonder.title,
+          location: locName,
+          price: (wonder.estimated_price_rwf || "10,000") + " RWF",
           payload: data
         });
 
       } catch (err) {
-        alert("Pipeline error: " + err.message);
+        alert("Error: " + err.message);
       } finally {
-        btn.innerText = "Run Full Meta Model API Pipeline";
+        btn.innerText = "Analyze Photo & Generate Commercial Listing";
         btn.disabled = false;
       }
+    }
+
+    function initOrRefreshMap(filterKey) {
+      if (!mapInstance) {
+        mapInstance = L.map('map').setView([-1.9536, 30.0606], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(mapInstance);
+      }
+      setTimeout(() => mapInstance.invalidateSize(), 150);
+
+      mapMarkers.forEach(m => mapInstance.removeLayer(m));
+      mapMarkers = [];
+
+      const filtered = directoryPlaces.filter(p => filterKey === 'all' || p.category.toLowerCase().includes(filterKey.toLowerCase()));
+      const cardsContainer = document.getElementById('directoryCards');
+
+      cardsContainer.innerHTML = filtered.map(p => {
+        const cleanPhone = p.phone.replace(/[^0-9]/g, '');
+        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello! I found ' + p.name + ' on KuraCommerce Map.')}`;
+        const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+        return `
+          <div style="background:#0f172a; padding:1rem; border-radius:8px; border:1px solid #334155;">
+            <span class="badge">${p.category}</span>
+            <h4 style="margin:0.4rem 0; color:#38bdf8;">${p.name}</h4>
+            <p style="margin:0.25rem 0; font-size:0.85rem; color:#cbd5e1;">📍 ${p.area} | 💰 ${p.price}</p>
+            <p style="margin:0.25rem 0; font-size:0.85rem; color:#94a3b8;">📲 Seller: ${p.phone}</p>
+            <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+              <a href="${waUrl}" target="_blank" style="flex:1; background:#10b981; color:white; text-align:center; padding:0.45rem; border-radius:6px; text-decoration:none; font-size:0.85rem; font-weight:600;">WhatsApp Seller</a>
+              <a href="${gmapsUrl}" target="_blank" style="flex:1; background:#0284c7; color:white; text-align:center; padding:0.45rem; border-radius:6px; text-decoration:none; font-size:0.85rem; font-weight:600;">Directions</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      filtered.forEach(p => {
+        const marker = L.marker([p.lat, p.lng]).addTo(mapInstance);
+        marker.bindPopup(`<b>${p.name}</b><br>${p.category}<br>📍 ${p.area}<br>💰 ${p.price}<br>📲 ${p.phone}`);
+        mapMarkers.push(marker);
+      });
+    }
+
+    function filterDirectory(key, btnEl) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      initOrRefreshMap(key);
     }
 
     function renderAdminTable() {
       const tbody = document.getElementById('adminOrderTable');
       if (ordersList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b;">No recent orders recorded yet. Run a product process in User View to log data.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">No orders or listings logged yet. Generate a listing in tab 1 first.</td></tr>`;
         return;
       }
-      tbody.innerHTML = ordersList.map(o => `
+      tbody.innerHTML = ordersList.map((o, idx) => `
         <tr>
           <td>${o.time}</td>
           <td>${o.phone}</td>
           <td>${o.title}</td>
+          <td>${o.location}</td>
           <td>${o.price}</td>
-          <td><button onclick='alert(${JSON.stringify(JSON.stringify(o.payload, null, 2))})' style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin:0;">View Full Telemetry JSON</button></td>
+          <td>
+            <button onclick="openTelemetryModal(${idx})" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; margin: 0; width: auto; background: #0284c7;">
+              🔍 View Order & Telemetry JSON
+            </button>
+          </td>
         </tr>
       `).join('');
+    }
+
+    function openTelemetryModal(index) {
+      const item = ordersList[index];
+      if (!item) return;
+      document.getElementById('modalTitle').innerText = `Order & Telemetry: ${item.title}`;
+      document.getElementById('modalSummary').innerText = `Seller WhatsApp: ${item.phone} | Location: ${item.location} | Price: ${item.price}`;
+      document.getElementById('modalJsonContent').innerText = JSON.stringify(item.payload, null, 2);
+      document.getElementById('telemetryModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('telemetryModal').style.display = 'none';
     }
   </script>
 </body>

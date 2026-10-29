@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KuraCommerce | AI Voice Studio & Map Hub</title>
+  <title>KuraCommerce | AI Studio, USSD Gateway & Stock Alerts</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -19,77 +19,70 @@
     body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 1.5rem; }
     .container { max-width: 1040px; margin: 0 auto; }
     header { text-align: center; margin-bottom: 1.5rem; }
-    h1 { color: var(--accent-cyan); margin-bottom: 0.25rem; font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    h1 { color: var(--accent-cyan); margin-bottom: 0.25rem; font-size: 2.2rem; }
     p { color: var(--text-muted); }
-    .nav-tabs { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
-    .nav-tab { background: #1a2744; border: 1px solid #334155; color: var(--text-muted); padding: 0.65rem 1.35rem; border-radius: 10px; cursor: pointer; font-weight: 600; width: auto; margin-top: 0; transition: all 0.2s ease; }
+    .nav-tabs { display: flex; justify-content: center; gap: 0.6rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .nav-tab { background: #1a2744; border: 1px solid #334155; color: var(--text-muted); padding: 0.65rem 1.1rem; border-radius: 10px; cursor: pointer; font-weight: 600; width: auto; }
     .nav-tab:hover { border-color: var(--accent-cyan); color: white; }
-    .nav-tab.active { background: #0284c7; color: white; border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
-    .card { background: var(--card-bg); border-radius: 14px; padding: 1.75rem; border: 1px solid #283548; margin-bottom: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+    .nav-tab.active { background: #0284c7; color: white; border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+    .card { background: var(--card-bg); border-radius: 14px; padding: 1.75rem; border: 1px solid #283548; margin-bottom: 1.5rem; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
     .input-group { margin-bottom: 0.85rem; }
-    .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #e2e8f0; font-size: 0.92rem; }
-    .input-field { width: 100%; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid #334155; background: #0b111e; color: var(--text-main); font-size: 1rem; box-sizing: border-box; }
-    .input-field:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(56,189,248,0.2); }
-    .upload-box { border: 2px dashed #38bdf8; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; background: rgba(56, 189, 248, 0.04); transition: background 0.2s; }
-    .upload-box:hover { background: rgba(56, 189, 248, 0.08); }
+    .input-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #e2e8f0; font-size: 0.9rem; }
+    .input-field { width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #334155; background: #0b111e; color: var(--text-main); font-size: 0.95rem; box-sizing: border-box; }
+    .upload-box { border: 2px dashed var(--accent-cyan); border-radius: 12px; padding: 1.75rem; text-align: center; cursor: pointer; background: rgba(56, 189, 248, 0.04); }
     
-    /* Voice Recording Section Styling */
-    .voice-box { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; margin-top: 1.25rem; text-align: center; }
-    .mic-btn { background: #059669; color: white; border: none; border-radius: 50px; padding: 0.75rem 1.75rem; font-weight: bold; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.2s; width: auto; margin-top: 0.5rem; }
-    .mic-btn:hover { background: #047857; transform: scale(1.02); }
+    .voice-box { background: #0b111e; border: 1px solid #334155; border-radius: 12px; padding: 1.1rem; margin-top: 1rem; text-align: center; }
+    .mic-btn { background: #059669; color: white; border: none; border-radius: 50px; padding: 0.65rem 1.5rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; width: auto; }
     .mic-btn.recording { background: #dc2626; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } }
 
-    button.primary-action { background: #0284c7; color: white; border: none; border-radius: 10px; padding: 1rem 1.5rem; font-weight: 700; cursor: pointer; margin-top: 1.25rem; width: 100%; font-size: 1.05rem; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
-    button.primary-action:hover { background: #0369a1; }
+    button.primary-action { background: #0284c7; color: white; border: none; border-radius: 10px; padding: 0.9rem; font-weight: 700; cursor: pointer; margin-top: 1.25rem; width: 100%; font-size: 1rem; }
+    .order-btn { background: var(--accent-green); margin-top: 1rem; text-decoration: none; display: block; text-align: center; padding: 0.9rem; border-radius: 10px; color: white; font-weight: 700; }
     
-    .order-btn { background: var(--accent-green); margin-top: 1.25rem; text-decoration: none; display: block; text-align: center; padding: 1rem; border-radius: 10px; color: white; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-    .order-btn:hover { background: #059669; }
-    
-    .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem; }
+    .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
     img { max-width: 100%; border-radius: 10px; border: 1px solid #334155; display: none; }
     .result-box, .view-section { display: none; }
-    .badge { display: inline-block; background: #0284c7; color: white; padding: 0.4rem 0.75rem; border-radius: 8px; font-size: 0.9rem; margin-right: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; }
-    .wa-box { background: #064e3b; border: 1px solid #10b981; padding: 1.25rem; border-radius: 10px; white-space: pre-wrap; margin-top: 1.25rem; color: #ecfdf5; font-size: 0.95rem; }
-    #map { height: 400px; width: 100%; border-radius: 12px; border: 1px solid #334155; margin-top: 1.25rem; }
-    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
-    .filter-btn { width: auto; margin-top: 0; padding: 0.5rem 1rem; font-size: 0.9rem; background: #1e293b; color: var(--text-muted); border: 1px solid #334155; }
-    .filter-btn.active { background: var(--accent-green); color: white; border-color: var(--accent-green); }
-    table { width: 100%; border-collapse: collapse; margin-top: 1.25rem; font-size: 0.92rem; }
-    th, td { border: 1px solid #283548; padding: 0.85rem; text-align: left; }
+    .badge { display: inline-block; background: #0284c7; color: white; padding: 0.35rem 0.7rem; border-radius: 8px; font-size: 0.85rem; margin-right: 0.4rem; font-weight: 600; }
+    .wa-box { background: #064e3b; border: 1px solid var(--accent-green); padding: 1rem; border-radius: 10px; white-space: pre-wrap; margin-top: 1rem; color: #ecfdf5; font-size: 0.9rem; }
+    #map { height: 380px; width: 100%; border-radius: 12px; border: 1px solid #334155; margin-top: 1rem; }
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-btn { width: auto; margin-top: 0; padding: 0.45rem 0.9rem; font-size: 0.85rem; background: #1e293b; color: var(--text-muted); border: 1px solid #334155; }
+    .filter-btn.active { background: var(--accent-green); color: white; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid #283548; padding: 0.75rem; text-align: left; }
     th { background: #0b111e; color: var(--accent-cyan); }
-    td { color: #e2e8f0; }
-    
+
     /* Modal */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; }
-    .modal-content { background: var(--card-bg); border: 1px solid var(--accent-cyan); border-radius: 14px; max-width: 750px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.75rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
-    .modal-pre { background: #0b111e; padding: 1.25rem; border-radius: 10px; color: #a5f3fc; overflow-x: auto; font-size: 0.85rem; border: 1px solid #1e293b; }
+    .modal-content { background: var(--card-bg); border: 1px solid var(--accent-cyan); border-radius: 14px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.5rem; }
+    .modal-pre { background: #0b111e; padding: 1rem; border-radius: 8px; color: #a5f3fc; overflow-x: auto; font-size: 0.85rem; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>KuraCommerce Hub</h1>
-      <p>AI Voice Studio (Kinyarwanda & English), Local Services & Live Map Directory</p>
+      <p>AI Voice & Vision Studio, Offline USSD Gateway, WhatsApp Stock Alerts & Map Directory</p>
     </header>
 
     <div class="nav-tabs">
-      <button class="nav-tab active" id="userTab" onclick="switchView('user')">1. Voice & Visual Studio</button>
-      <button class="nav-tab" id="mapTab" onclick="switchView('map')">2. Map Directory (Shops & Markets)</button>
-      <button class="nav-tab" id="adminTab" onclick="switchView('admin')">3. Admin Dashboard 🔒</button>
+      <button class="nav-tab active" id="userTab" onclick="switchView('user')">1. Studio & Voice AI</button>
+      <button class="nav-tab" id="ussdTab" onclick="switchView('ussd')">2. USSD Offline Mode (*890#)</button>
+      <button class="nav-tab" id="mapTab" onclick="switchView('map')">3. Map Directory</button>
+      <button class="nav-tab" id="adminTab" onclick="switchView('admin')">4. Admin Dashboard 🔒</button>
     </div>
 
-    <!-- 1. USER & VOICE STUDIO VIEW -->
+    <!-- 1. USER & VOICE STUDIO -->
     <div id="userView" class="view-section" style="display: block;">
       <div class="card">
         <div class="form-grid">
           <div class="input-group">
-            <label for="whatsappNumber">📲 Seller / Merchant WhatsApp Number (Required):</label>
+            <label for="whatsappNumber">📲 Seller WhatsApp Number:</label>
             <input type="tel" id="whatsappNumber" class="input-field" placeholder="e.g. +250 788 000 000" required>
           </div>
           <div class="input-group">
-            <label for="serviceCategory">🏷️ Business or Product Category:</label>
+            <label for="serviceCategory">🏷️ Category:</label>
             <select id="serviceCategory" class="input-field">
               <option value="Artisan Craft & Retail">Artisan Craft & Retail Product</option>
               <option value="Barber & Grooming Salon">Barber Shop & Hair Salon</option>
@@ -99,410 +92,339 @@
             </select>
           </div>
           <div class="input-group">
-            <label for="itemCustomName">✏️ Product or Shop Name:</label>
-            <input type="text" id="itemCustomName" class="input-field" placeholder="e.g. Ibyansi by'Amata / Kigali Barber">
+            <label for="itemCustomName">✏️ Item Name or Voice Transcript:</label>
+            <input type="text" id="itemCustomName" class="input-field" placeholder="e.g. Kitenge Shirt / Speak below">
           </div>
           <div class="input-group">
-            <label for="locationSelect">📍 Seller Location (For Map & Directions):</label>
-            <select id="locationSelect" class="input-field">
-              <option value="Kimironko Market, Kigali|-1.9487|30.1262">Kimironko Market, Kigali</option>
-              <option value="Nyamirambo Commercial Hub|-1.9782|30.0447">Nyamirambo Commercial Hub</option>
-              <option value="Downtown Kigali City Center|-1.9441|30.0619">Downtown Kigali City Center</option>
-              <option value="Remera Gisimenti Hub|-1.9592|30.1095">Remera Gisimenti Hub</option>
-              <option value="Nyabugogo Market Area|-1.9398|30.0444">Nyabugogo Market Area</option>
-            </select>
+            <label for="stockQty">📊 Initial Stock Quantity (Triggers WhatsApp Alert if ≤ 2):</label>
+            <input type="number" id="stockQty" class="input-field" value="5" min="1" max="100">
           </div>
         </div>
 
-        <!-- VOICE TO LISTING FEATURE -->
         <div class="voice-box">
-          <label style="font-weight: 600; color: #38bdf8; display:block; margin-bottom: 0.4rem;">🎙️ AI Voice-to-Listing (Speak in Kinyarwanda or English):</label>
-          <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">Click the microphone and describe your item or service out loud. It will automatically populate your product details!</p>
-          <button type="button" id="micBtn" class="mic-btn" onclick="toggleVoiceRecording()">
-            🎤 Start Voice Recording
-          </button>
-          <p id="voiceStatus" style="font-size: 0.85rem; color: #10b981; margin-top: 0.6rem; font-weight: 500;"></p>
+          <label style="font-weight: 600; color: var(--accent-cyan); display:block; margin-bottom: 0.3rem;">🎙️ Voice-to-Listing (Kinyarwanda / English):</label>
+          <button type="button" id="micBtn" class="mic-btn" onclick="toggleVoiceRecording()">🎤 Start Voice Recording</button>
+          <p id="voiceStatus" style="font-size: 0.8rem; color: var(--accent-green); margin-top: 0.4rem;"></p>
         </div>
 
-        <div class="upload-box" style="margin-top: 1.25rem;" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-box" style="margin-top: 1rem;" onclick="document.getElementById('fileInput').click()">
           <p id="uploadLabel">📷 Click or Drag Photo of Product / Storefront</p>
           <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewFile()">
         </div>
 
         <div class="preview-grid">
-          <div>
-            <h4>1. Original Photo</h4>
-            <img id="rawPreview" alt="Raw Input">
-          </div>
-          <div>
-            <h4>2. Studio Enhanced View</h4>
-            <img id="studioPreview" alt="Studio Output">
-          </div>
+          <div><h4>Original Photo</h4><img id="rawPreview" alt="Raw"></div>
+          <div><h4>Studio Enhanced</h4><img id="studioPreview" alt="Studio"></div>
         </div>
-        <button id="processBtn" class="primary-action" onclick="processProduct()">Run AI Valuation & Generate Trilingual Campaign</button>
+        <button class="primary-action" onclick="processProduct()">Run AI Valuation & Generate Campaign</button>
       </div>
 
       <div class="card result-box" id="resultCard">
-        <h3>3. AI Product Valuation & Appraisal</h3>
+        <h3>3. AI Valuation & Stock WhatsApp Alert</h3>
         <div>
-          <span class="badge" id="categoryBadge">Category</span>
-          <span class="badge" id="priceBadge">Price</span>
-          <span class="badge" id="phoneBadge">Seller WhatsApp</span>
-          <span class="badge" id="locationBadge">Location</span>
+          <span class="badge" id="categoryBadge"></span>
+          <span class="badge" id="priceBadge"></span>
+          <span class="badge" id="stockBadge">Stock</span>
         </div>
         <h2 id="productTitle" style="color: var(--accent-cyan); margin-top: 0.75rem;"></h2>
-        <p><strong>Visual Inspection & Transcription:</strong> <span id="photoDescription" style="color: #cbd5e1;"></span></p>
+        <p><strong>Inspection:</strong> <span id="photoDescription" style="color: #cbd5e1;"></span></p>
 
-        <h3>4. Trilingual Marketing Copy (Kinyarwanda, English, French)</h3>
+        <h3>Trilingual Campaign & WhatsApp Alert Preview</h3>
         <p><strong>🇷🇼 Kinyarwanda:</strong> <span id="copyRw"></span></p>
         <p><strong>🇬🇧 English:</strong> <span id="copyEn"></span></p>
-        <p><strong>🇫🇷 Français:</strong> <span id="copyFr"></span></p>
 
         <div class="wa-box" id="waMessagePreview"></div>
         <a id="orderWhatsAppBtn" href="#" target="_blank" class="order-btn">🛒 Order / Book on WhatsApp Now</a>
-        <a id="mapDirectionsBtn" href="#" target="_blank" class="order-btn" style="background: #0284c7; margin-top: 0.75rem;">🗺️ Open Location & Directions in Google Maps</a>
       </div>
     </div>
 
-    <!-- 2. MAP DIRECTORY VIEW -->
+    <!-- 2. USSD OFFLINE SIMULATOR (*250#) -->
+<div id="ussdView" class="view-section">
+  <div class="card" style="max-width: 600px; margin: 0 auto; text-align: center;">
+    <h3>📱 Offline USSD Gateway Simulator (*250#)</h3>
+    <p>Simulating telecom carrier integration for rural Rwandan merchants with zero internet access.</p>
+    
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; justify-content: center;">
+      <input type="text" id="ussdCodeInput" class="input-field" value="*250#" style="max-width: 140px; text-align: center; font-weight: bold;" placeholder="*250#">
+      <button onclick="dialUssd()" style="width: auto; margin: 0; background: var(--accent-cyan);">Dial Code</button>
+    </div>
+
+    <div style="background: #0b111e; border: 2px solid var(--accent-cyan); border-radius: 14px; padding: 1.5rem; font-family: monospace; text-align: left;">
+      <p id="ussdScreenText" style="color: #38bdf8; white-space: pre-wrap; font-size: 1.05rem; margin: 0;">Dial *250# above to open gateway session...</p>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+      <input type="text" id="ussdInput" class="input-field" placeholder="Enter option (1, 2, 3, 4)" style="margin: 0;">
+      <button onclick="sendUssdInput()" style="width: auto; margin: 0; background: var(--accent-green);">Send Input</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function dialUssd() {
+    const code = document.getElementById('ussdCodeInput').value.trim();
+    const res = await fetch('/api/ussd-fallback', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ ussd_code: code, input: "" })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('ussdScreenText').innerText = data.response_text;
+    } else {
+      alert(data.error);
+    }
+  }
+
+  async function sendUssdInput() {
+    const code = document.getElementById('ussdCodeInput').value.trim();
+    const inputVal = document.getElementById('ussdInput').value.trim();
+    const res = await fetch('/api/ussd-fallback', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ ussd_code: code, input: inputVal })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('ussdScreenText').innerText = data.response_text;
+      document.getElementById('ussdInput').value = "";
+    }
+  }
+</script>
+
+    <!-- 3. MAP DIRECTORY -->
     <div id="mapView" class="view-section">
       <div class="card">
         <h3>Live Directory: Shops, Barbers & Markets</h3>
-        <p>Explore verified local vendors. Click category filters or map pins to connect via WhatsApp or get directions.</p>
         <div class="filter-bar">
           <button class="filter-btn active" onclick="filterDirectory('all', this)">All Places</button>
           <button class="filter-btn" onclick="filterDirectory('Barber', this)">💈 Barbers & Salons</button>
           <button class="filter-btn" onclick="filterDirectory('Market', this)">🥬 Local Markets</button>
-          <button class="filter-btn" onclick="filterDirectory('Craft', this)">🧺 Crafts & Tailors</button>
         </div>
         <div id="map"></div>
-        <div id="directoryCards" style="margin-top: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"></div>
+        <div id="directoryCards" style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"></div>
       </div>
     </div>
 
-    <!-- 3. ADMIN DASHBOARD VIEW -->
+    <!-- 4. ADMIN DASHBOARD -->
     <div id="adminView" class="view-section">
       <div class="card">
-        <h3>Admin Orders, Telemetry & Location Logs</h3>
-        <p>Review customer bookings, seller contacts, coordinates, and full backend model telemetry JSON payloads.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3>Admin Orders & Telemetry</h3>
+            <p style="margin: 0;">Manage orders, stock levels, and admin credentials.</p>
+          </div>
+          <button onclick="openPasswordResetModal()" style="width: auto; margin: 0; background: #d97706; padding: 0.6rem 1.2rem; font-size: 0.9rem;">🔐 Reset Admin Password</button>
+        </div>
         <table>
           <thead>
             <tr>
               <th>Time</th>
-              <th>Seller WhatsApp</th>
-              <th>Item / Service</th>
-              <th>Location</th>
+              <th>WhatsApp</th>
+              <th>Item</th>
+              <th>Stock</th>
               <th>Price</th>
-              <th>Telemetry Action</th>
+              <th>Telemetry</th>
             </tr>
           </thead>
           <tbody id="adminOrderTable">
-            <tr>
-              <td colspan="6" style="text-align: center; color: var(--text-muted);">No orders logged yet. Generate a listing in Tab 1 first.</td>
-            </tr>
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No orders logged yet.</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ADMIN TELEMETRY MODAL -->
+  <!-- PASSWORD RESET MODAL -->
+  <div class="modal-overlay" id="passwordModal">
+    <div class="modal-content" style="max-width: 450px;">
+      <h3 style="color: var(--accent-cyan); margin-top: 0;">Reset Admin Password</h3>
+      <div class="input-group">
+        <label>Current Password:</label>
+        <input type="password" id="oldPwdInput" class="input-field" placeholder="Default: admin123">
+      </div>
+      <div class="input-group">
+        <label>New Password:</label>
+        <input type="password" id="newPwdInput" class="input-field" placeholder="Enter new secure password">
+      </div>
+      <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+        <button onclick="submitPasswordReset()" style="background: var(--accent-green); margin:0;">Update Password</button>
+        <button onclick="closePasswordModal()" style="background: #dc2626; margin:0;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELEMETRY MODAL -->
   <div class="modal-overlay" id="telemetryModal">
     <div class="modal-content">
-      <h3 id="modalTitle" style="color: var(--accent-cyan); margin-top: 0;">Order & System Telemetry Details</h3>
-      <p id="modalSummary" style="color: #cbd5e1; font-size: 0.9rem;"></p>
+      <h3 id="modalTitle" style="color: var(--accent-cyan); margin-top: 0;">Telemetry Details</h3>
       <pre class="modal-pre" id="modalJsonContent"></pre>
-      <button onclick="closeModal()" style="background: #dc2626; margin-top: 1.25rem; width: auto; padding: 0.6rem 1.2rem;">Close Window</button>
+      <button onclick="closeModal()" style="background: #dc2626; margin-top: 1rem; width: auto; padding: 0.5rem 1rem;">Close</button>
     </div>
   </div>
 
   <script>
     let base64String = "";
-    let uploadedFileName = "";
     let ordersList = [];
     let isAdminAuthenticated = false;
-    const ADMIN_PASSWORD = "admin123";
+    let currentAdminPwd = "admin123";
     let mapInstance = null;
     let mapMarkers = [];
 
     let directoryPlaces = [
-      { name: "Nyamirambo Executive Barber", category: "Barber & Grooming Salon", area: "Nyamirambo Commercial Hub", lat: -1.9782, lng: 30.0447, price: "5,000 RWF", phone: "+250788100200" },
-      { name: "Kimironko Fresh Market Stall", category: "Local Market & Fresh Produce", area: "Kimironko Market, Kigali", lat: -1.9487, lng: 30.1262, price: "3,500 RWF", phone: "+250788300400" },
-      { name: "Remera Gisimenti Barber", category: "Barber & Grooming Salon", area: "Remera Gisimenti Hub", lat: -1.9592, lng: 30.1095, price: "6,000 RWF", phone: "+250788500600" },
-      { name: "Downtown Kigali Kitenge Tailors", category: "Artisan Craft & Retail", area: "Downtown Kigali City Center", lat: -1.9441, lng: 30.0619, price: "15,000 RWF", phone: "+250788700800" }
+      { name: "Nyamirambo Executive Barber", category: "Barber & Grooming Salon", area: "Nyamirambo", lat: -1.9782, lng: 30.0447, price: "5,000 RWF", phone: "+250788100200" },
+      { name: "Kimironko Fresh Market Stall", category: "Local Market & Fresh Produce", area: "Kimironko Market", lat: -1.9487, lng: 30.1262, price: "3,500 RWF", phone: "+250788300400" }
     ];
 
-    // --- VOICE TO LISTING WEB SPEECH API ---
     let recognition = null;
     let isRecording = false;
-
     function toggleVoiceRecording() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
-        return;
-      }
-
+      if (!SpeechRecognition) { alert("Speech recognition not supported in this browser."); return; }
       if (!isRecording) {
         recognition = new SpeechRecognition();
-        // Support both Kinyarwanda and English recognition
-        recognition.lang = 'rw-RW'; 
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onstart = function() {
-          isRecording = true;
-          document.getElementById('micBtn').classList.add('recording');
-          document.getElementById('micBtn').innerText = "🔴 Listening... Speak Now";
-          document.getElementById('voiceStatus').innerText = "Listening in Kinyarwanda / English...";
-        };
-
-        recognition.onresult = function(event) {
-          const transcript = event.results[0][0].transcript;
-          document.getElementById('itemCustomName').value = transcript;
-          document.getElementById('voiceStatus').innerText = `✅ Captured: "${transcript}"`;
-        };
-
-        recognition.onerror = function(event) {
-          document.getElementById('voiceStatus').innerText = "⚠️ Voice error: " + event.error + ". Try speaking clearly.";
-          stopMicUI();
-        };
-
-        recognition.onend = function() {
-          stopMicUI();
-        };
-
+        recognition.lang = 'rw-RW';
+        recognition.onstart = () => { isRecording = true; document.getElementById('micBtn').classList.add('recording'); document.getElementById('micBtn').innerText = "🔴 Listening..."; };
+        recognition.onresult = (e) => { document.getElementById('itemCustomName').value = e.results[0][0].transcript; document.getElementById('voiceStatus').innerText = `Captured: "${e.results[0][0].transcript}"`; };
+        recognition.onend = () => { isRecording = false; document.getElementById('micBtn').classList.remove('recording'); document.getElementById('micBtn').innerText = "🎤 Start Voice Recording"; };
         recognition.start();
-      } else {
-        if (recognition) recognition.stop();
-        stopMicUI();
-      }
-    }
-
-    function stopMicUI() {
-      isRecording = false;
-      const btn = document.getElementById('micBtn');
-      if (btn) {
-        btn.classList.remove('recording');
-        btn.innerText = "🎤 Start Voice Recording";
-      }
+      } else { if (recognition) recognition.stop(); }
     }
 
     function switchView(view) {
       if (view === 'admin' && !isAdminAuthenticated) {
         const pwd = prompt("Enter Admin Password (default: admin123):");
-        if (pwd === ADMIN_PASSWORD) {
-          isAdminAuthenticated = true;
-        } else {
-          alert("Incorrect password! Access denied.");
-          return;
-        }
+        if (pwd === currentAdminPwd) { isAdminAuthenticated = true; } 
+        else { alert("Incorrect password!"); return; }
       }
-
       document.getElementById('userView').style.display = (view === 'user') ? 'block' : 'none';
+      document.getElementById('ussdView').style.display = (view === 'ussd') ? 'block' : 'none';
       document.getElementById('mapView').style.display = (view === 'map') ? 'block' : 'none';
       document.getElementById('adminView').style.display = (view === 'admin') ? 'block' : 'none';
 
       document.getElementById('userTab').classList.toggle('active', view === 'user');
+      document.getElementById('ussdTab').classList.toggle('active', view === 'ussd');
       document.getElementById('mapTab').classList.toggle('active', view === 'map');
       document.getElementById('adminTab').classList.toggle('active', view === 'admin');
 
-      if (view === 'map') {
-        initOrRefreshMap('all');
-      } else if (view === 'admin') {
-        renderAdminTable();
-      }
+      if (view === 'map') initOrRefreshMap('all');
+      if (view === 'admin') renderAdminTable();
     }
 
     function previewFile() {
       const file = document.getElementById('fileInput').files[0];
       if (!file) return;
-      uploadedFileName = file.name;
-      document.getElementById('uploadLabel').innerText = "📷 Photo Loaded: " + file.name;
+      document.getElementById('uploadLabel').innerText = "📷 Loaded: " + file.name;
       const reader = new FileReader();
-      reader.onloadend = function() {
+      reader.onloadend = () => {
         base64String = reader.result.split(',')[1];
-        const preview = document.getElementById('rawPreview');
-        preview.src = reader.result;
-        preview.style.display = 'block';
+        const p = document.getElementById('rawPreview'); p.src = reader.result; p.style.display = 'block';
       };
       reader.readAsDataURL(file);
     }
 
     async function processProduct() {
       const phoneInput = document.getElementById('whatsappNumber').value.trim();
-      if (!phoneInput) {
-        alert("Please enter your WhatsApp phone number first!");
-        document.getElementById('whatsappNumber').focus();
-        return;
-      }
-      if (!base64String) {
-        alert("Please select or drag in a photo first!");
-        return;
-      }
+      if (!phoneInput || !base64String) { alert("Please provide WhatsApp number and photo."); return; }
 
-      const customName = document.getElementById('itemCustomName').value.trim();
-      const serviceCat = document.getElementById('serviceCategory').value;
-      const locParts = document.getElementById('locationSelect').value.split('|');
-      const locName = locParts[0];
-      const lat = parseFloat(locParts[1]);
-      const lng = parseFloat(locParts[2]);
-
-      const btn = document.getElementById('processBtn');
-      btn.innerText = "Processing AI Pipeline & Trilingual Translation...";
-      btn.disabled = true;
-
-      try {
-        const res = await fetch('/api/process-product', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            whatsapp_number: phoneInput,
-            image_base64: base64String,
-            filename: customName || uploadedFileName,
-            service_category: serviceCat,
-            location_name: locName,
-            lat: lat,
-            lng: lng
-          })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.error || "Request failed");
-          return;
-        }
-
-        document.getElementById('resultCard').style.display = 'block';
-        const wonder = data.muse_wonder_catalog || {};
-        const spark = data.muse_spark_campaign || {};
-
-        document.getElementById('productTitle').innerText = wonder.title || customName || "Featured Listing";
-        document.getElementById('categoryBadge').innerText = wonder.category || serviceCat;
-        document.getElementById('priceBadge').innerText = (wonder.estimated_price_rwf || "10,000") + " RWF";
-        document.getElementById('phoneBadge').innerText = "WhatsApp: " + data.merchant_whatsapp;
-        document.getElementById('locationBadge').innerText = "📍 " + locName;
-        document.getElementById('photoDescription').innerText = wonder.description || "";
-
-        document.getElementById('copyRw').innerText = spark.ad_copy_rw || "";
-        document.getElementById('copyEn').innerText = spark.ad_copy_en || "";
-        document.getElementById('copyFr').innerText = spark.ad_copy_fr || "";
-        document.getElementById('waMessagePreview').innerText = data.whatsapp_formatted_message || "";
-
-        const waText = encodeURIComponent(`Hello! I saw your listing "${wonder.title}" (${wonder.estimated_price_rwf} RWF) at ${locName} on KuraCommerce and would like to order/book.`);
-        const cleanPhone = data.merchant_whatsapp.replace(/[^0-9]/g, '');
-        document.getElementById('orderWhatsAppBtn').href = `https://wa.me/${cleanPhone}?text=${waText}`;
-        document.getElementById('mapDirectionsBtn').href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-
-        const studioImg = document.getElementById('studioPreview');
-        studioImg.src = document.getElementById('rawPreview').src;
-        studioImg.style.display = 'block';
-
-        directoryPlaces.unshift({
-          name: wonder.title,
-          category: wonder.category,
-          area: locName,
-          lat: lat,
-          lng: lng,
-          price: (wonder.estimated_price_rwf || "10,000") + " RWF",
-          phone: data.merchant_whatsapp
-        });
-
-        ordersList.unshift({
-          time: new Date().toLocaleTimeString(),
-          phone: data.merchant_whatsapp,
-          title: wonder.title,
-          location: locName,
-          price: (wonder.estimated_price_rwf || "10,000") + " RWF",
-          payload: data
-        });
-
-      } catch (err) {
-        alert("Error: " + err.message);
-      } finally {
-        btn.innerText = "Run AI Valuation & Generate Trilingual Campaign";
-        btn.disabled = false;
-      }
-    }
-
-    function initOrRefreshMap(filterKey) {
-      if (!mapInstance) {
-        mapInstance = L.map('map').setView([-1.9536, 30.0606], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(mapInstance);
-      }
-      setTimeout(() => mapInstance.invalidateSize(), 150);
-
-      mapMarkers.forEach(m => mapInstance.removeLayer(m));
-      mapMarkers = [];
-
-      const filtered = directoryPlaces.filter(p => filterKey === 'all' || p.category.toLowerCase().includes(filterKey.toLowerCase()));
-      const cardsContainer = document.getElementById('directoryCards');
-
-      cardsContainer.innerHTML = filtered.map(p => {
-        const cleanPhone = p.phone.replace(/[^0-9]/g, '');
-        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello! I found ' + p.name + ' on KuraCommerce Map.')}`;
-        const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
-        return `
-          <div style="background:#0b111e; padding:1.1rem; border-radius:10px; border:1px solid #283548;">
-            <span class="badge">${p.category}</span>
-            <h4 style="margin:0.4rem 0; color:var(--accent-cyan);">${p.name}</h4>
-            <p style="margin:0.25rem 0; font-size:0.85rem; color:#cbd5e1;">📍 ${p.area} | 💰 ${p.price}</p>
-            <p style="margin:0.25rem 0; font-size:0.85rem; color:#94a3b8;">📲 WhatsApp: ${p.phone}</p>
-            <div style="display:flex; gap:0.5rem; margin-top:0.85rem;">
-              <a href="${waUrl}" target="_blank" style="flex:1; background:var(--accent-green); color:white; text-align:center; padding:0.5rem; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:700;">WhatsApp</a>
-              <a href="${gmapsUrl}" target="_blank" style="flex:1; background:#0284c7; color:white; text-align:center; padding:0.5rem; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:700;">Directions</a>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      filtered.forEach(p => {
-        const marker = L.marker([p.lat, p.lng]).addTo(mapInstance);
-        marker.bindPopup(`<b>${p.name}</b><br>${p.category}<br>📍 ${p.area}<br>💰 ${p.price}<br>📲 ${p.phone}`);
-        mapMarkers.push(marker);
+      const res = await fetch('/api/process-product', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          whatsapp_number: phoneInput,
+          image_base64: base64String,
+          filename: document.getElementById('itemCustomName').value.trim() || "Item",
+          service_category: document.getElementById('serviceCategory').value,
+          stock_quantity: parseInt(document.getElementById('stockQty').value) || 5,
+          location_name: "Kimironko Market, Kigali",
+          lat: -1.9487, lng: 30.1262
+        })
       });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error); return; }
+
+      document.getElementById('resultCard').style.display = 'block';
+      const wonder = data.muse_wonder_catalog || {};
+      const spark = data.muse_spark_campaign || {};
+
+      document.getElementById('productTitle').innerText = wonder.title;
+      document.getElementById('categoryBadge').innerText = wonder.category;
+      document.getElementById('priceBadge').innerText = wonder.estimated_price_rwf + " RWF";
+      document.getElementById('stockBadge').innerText = "Stock: " + data.stock_quantity;
+      document.getElementById('photoDescription').innerText = wonder.description;
+      document.getElementById('copyRw').innerText = spark.ad_copy_rw;
+      document.getElementById('copyEn').innerText = spark.ad_copy_en;
+      document.getElementById('waMessagePreview').innerText = data.whatsapp_formatted_message;
+
+      const waText = encodeURIComponent(`Hello! I want to order ${wonder.title} (${wonder.estimated_price_rwf} RWF) via KuraCommerce.`);
+      document.getElementById('orderWhatsAppBtn').href = `https://wa.me/${data.merchant_whatsapp.replace(/[^0-9]/g,'')}?text=${waText}`;
+
+      const studioImg = document.getElementById('studioPreview');
+      studioImg.src = document.getElementById('rawPreview').src;
+      studioImg.style.display = 'block';
+
+      ordersList.unshift({ time: new Date().toLocaleTimeString(), phone: data.merchant_whatsapp, title: wonder.title, stock: data.stock_quantity, price: wonder.estimated_price_rwf + " RWF", payload: data });
     }
 
-    function filterDirectory(key, btnEl) {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
-      initOrRefreshMap(key);
+    function runUssd() {
+      const val = document.getElementById('ussdInput').value.trim();
+      const screen = document.getElementById('ussdScreenText');
+      if (val === "1") screen.innerText = "MARKET PRICES:\n- Kitenge Fabric: 15,000 RWF\n- Fresh Tomatoes: 3,500 RWF\n- Barber Cut: 5,000 RWF";
+      else if (val === "2") screen.innerText = "LISTING CREATED!\nYour item is now active on WhatsApp & Map Directory.";
+      else if (val === "3") screen.innerText = "LOW STOCK ALERTS:\n⚠️ 2 items running low. WhatsApp alert dispatched to merchant.";
+      else screen.innerText = "CON KuraCommerce USSD Gateway\n1. Check Prices\n2. Register Listing\n3. Low Stock Alerts\n4. Delivery Rider";
+    }
+
+    function openPasswordResetModal() { document.getElementById('passwordModal').style.display = 'flex'; }
+    function closePasswordModal() { document.getElementById('passwordModal').style.display = 'none'; }
+
+    async function submitPasswordReset() {
+      const oldPwd = document.getElementById('oldPwdInput').value;
+      const newPwd = document.getElementById('newPwdInput').value;
+      const res = await fetch('/api/admin/reset-password', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ old_password: oldPwd, new_password: newPwd })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        currentAdminPwd = newPwd;
+        alert("Password updated successfully!");
+        closePasswordModal();
+      } else {
+        alert(data.error);
+      }
     }
 
     function renderAdminTable() {
       const tbody = document.getElementById('adminOrderTable');
-      if (ordersList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No orders or listings logged yet. Generate a listing in tab 1 first.</td></tr>`;
-        return;
-      }
+      if (ordersList.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No orders logged yet.</td></tr>`; return; }
       tbody.innerHTML = ordersList.map((o, idx) => `
-        <tr>
-          <td>${o.time}</td>
-          <td>${o.phone}</td>
-          <td>${o.title}</td>
-          <td>${o.location}</td>
-          <td>${o.price}</td>
-          <td>
-            <button onclick="openTelemetryModal(${idx})" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; margin: 0; width: auto; background: #0284c7;">
-              🔍 View Telemetry JSON
-            </button>
-          </td>
-        </tr>
+        <tr><td>${o.time}</td><td>${o.phone}</td><td>${o.title}</td><td>${o.stock}</td><td>${o.price}</td>
+        <td><button onclick="openTelemetryModal(${idx})" style="padding:0.4rem; font-size:0.8rem; background:#0284c7; width:auto;">View JSON</button></td></tr>
       `).join('');
     }
 
-    function openTelemetryModal(index) {
-      const item = ordersList[index];
-      if (!item) return;
-      document.getElementById('modalTitle').innerText = `Telemetry: ${item.title}`;
-      document.getElementById('modalSummary').innerText = `Seller: ${item.phone} | Location: ${item.location} | Price: ${item.price}`;
-      document.getElementById('modalJsonContent').innerText = JSON.stringify(item.payload, null, 2);
+    function openTelemetryModal(idx) {
+      document.getElementById('modalTitle').innerText = "Telemetry: " + ordersList[idx].title;
+      document.getElementById('modalJsonContent').innerText = JSON.stringify(ordersList[idx].payload, null, 2);
       document.getElementById('telemetryModal').style.display = 'flex';
     }
+    function closeModal() { document.getElementById('telemetryModal').style.display = 'none'; }
 
-    function closeModal() {
-      document.getElementById('telemetryModal').style.display = 'none';
+    function initOrRefreshMap(filterKey) {
+      if (!mapInstance) {
+        mapInstance = L.map('map').setView([-1.9536, 30.0606], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
+      }
+      setTimeout(() => mapInstance.invalidateSize(), 150);
+      mapMarkers.forEach(m => mapInstance.removeLayer(m));
+      mapMarkers = [];
+      directoryPlaces.forEach(p => {
+        const marker = L.marker([p.lat, p.lng]).addTo(mapInstance);
+        marker.bindPopup(`<b>${p.name}</b><br>${p.category}<br>💰 ${p.price}<br>📲 ${p.phone}`);
+        mapMarkers.push(marker);
+      });
     }
   </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KuraCommerce | AI Studio, USSD Gateway & Trilingual Campaigns</title>
+  <title>KuraCommerce Hub | AI Studio, USSD Gateway & Map Directory</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -47,8 +47,8 @@
     .wa-box { background: #064e3b; border: 1px solid var(--accent-green); padding: 1rem; border-radius: 10px; white-space: pre-wrap; margin-top: 1rem; color: #ecfdf5; font-size: 0.9rem; }
     #map { height: 380px; width: 100%; border-radius: 12px; border: 1px solid #334155; margin-top: 1rem; }
     .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .filter-btn { width: auto; margin-top: 0; padding: 0.45rem 0.9rem; font-size: 0.85rem; background: #1e293b; color: var(--text-muted); border: 1px solid #334155; }
-    .filter-btn.active { background: var(--accent-green); color: white; }
+    .filter-btn { width: auto; margin-top: 0; padding: 0.45rem 0.9rem; font-size: 0.85rem; background: #1e293b; color: var(--text-muted); border: 1px solid #334155; cursor: pointer; }
+    .filter-btn.active { background: var(--accent-green); color: white; border-color: var(--accent-green); }
     table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
     th, td { border: 1px solid #283548; padding: 0.75rem; text-align: left; }
     th { background: #0b111e; color: var(--accent-cyan); }
@@ -63,7 +63,7 @@
   <div class="container">
     <header>
       <h1>KuraCommerce Hub</h1>
-      <p>AI Voice & Vision Studio, Offline USSD Gateway (*250#), Stock Alerts & Trilingual Campaigns</p>
+      <p>AI Voice & Vision Studio, Offline USSD Gateway (*250#), Stock Alerts & Map Directory</p>
     </header>
 
     <div class="nav-tabs">
@@ -147,7 +147,7 @@
         
         <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; justify-content: center;">
           <input type="text" id="ussdCodeInput" class="input-field" value="*250#" style="max-width: 140px; text-align: center; font-weight: bold;" placeholder="*250#">
-          <button onclick="dialUssd()" style="width: auto; margin: 0; background: var(--accent-cyan);">Dial Code</button>
+          <button onclick="dialUssd()" style="width: auto; margin: 0; background: var(--accent-cyan); cursor: pointer;">Dial Code</button>
         </div>
 
         <div style="background: #0b111e; border: 2px solid var(--accent-cyan); border-radius: 14px; padding: 1.5rem; font-family: monospace; text-align: left;">
@@ -156,7 +156,7 @@
 
         <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
           <input type="text" id="ussdInput" class="input-field" placeholder="Enter option (1, 2, 3, 4)" style="margin: 0;">
-          <button onclick="sendUssdInput()" style="width: auto; margin: 0; background: var(--accent-green);">Send Input</button>
+          <button onclick="sendUssdInput()" style="width: auto; margin: 0; background: var(--accent-green); cursor: pointer;">Send Input</button>
         </div>
       </div>
     </div>
@@ -169,6 +169,7 @@
           <button class="filter-btn active" onclick="filterDirectory('all', this)">All Places</button>
           <button class="filter-btn" onclick="filterDirectory('Barber', this)">💈 Barbers & Salons</button>
           <button class="filter-btn" onclick="filterDirectory('Market', this)">🥬 Local Markets</button>
+          <button class="filter-btn" onclick="filterDirectory('Craft', this)">🧺 Crafts & Retail</button>
         </div>
         <div id="map"></div>
         <div id="directoryCards" style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"></div>
@@ -183,7 +184,7 @@
             <h3>Admin Orders & Telemetry</h3>
             <p style="margin: 0;">Manage orders, stock levels, and admin credentials.</p>
           </div>
-          <button onclick="openPasswordResetModal()" style="width: auto; margin: 0; background: #d97706; padding: 0.6rem 1.2rem; font-size: 0.9rem;">🔐 Reset Admin Password</button>
+          <button onclick="openPasswordResetModal()" style="width: auto; margin: 0; background: #d97706; padding: 0.6rem 1.2rem; font-size: 0.9rem; cursor: pointer;">🔐 Reset Admin Password</button>
         </div>
         <table>
           <thead>
@@ -217,8 +218,8 @@
         <input type="password" id="newPwdInput" class="input-field" placeholder="Enter new secure password">
       </div>
       <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
-        <button onclick="submitPasswordReset()" style="background: var(--accent-green); margin:0;">Update Password</button>
-        <button onclick="closePasswordModal()" style="background: #dc2626; margin:0;">Cancel</button>
+        <button onclick="submitPasswordReset()" style="background: var(--accent-green); margin:0; cursor: pointer;">Update Password</button>
+        <button onclick="closePasswordModal()" style="background: #dc2626; margin:0; cursor: pointer;">Cancel</button>
       </div>
     </div>
   </div>
@@ -228,12 +229,13 @@
     <div class="modal-content">
       <h3 id="modalTitle" style="color: var(--accent-cyan); margin-top: 0;">Telemetry Details</h3>
       <pre class="modal-pre" id="modalJsonContent"></pre>
-      <button onclick="closeModal()" style="background: #dc2626; margin-top: 1rem; width: auto; padding: 0.5rem 1rem;">Close</button>
+      <button onclick="closeModal()" style="background: #dc2626; margin-top: 1rem; width: auto; padding: 0.5rem 1rem; cursor: pointer;">Close</button>
     </div>
   </div>
 
   <script>
     let base64String = "";
+    let uploadedFileName = "";
     let ordersList = [];
     let isAdminAuthenticated = false;
     let currentAdminPwd = "admin123";
@@ -241,8 +243,10 @@
     let mapMarkers = [];
 
     let directoryPlaces = [
-      { name: "Nyamirambo Executive Barber", category: "Barber & Grooming Salon", area: "Nyamirambo", lat: -1.9782, lng: 30.0447, price: "5,000 RWF", phone: "+250788100200" },
-      { name: "Kimironko Fresh Market Stall", category: "Local Market & Fresh Produce", area: "Kimironko Market", lat: -1.9487, lng: 30.1262, price: "3,500 RWF", phone: "+250788300400" }
+      { name: "Nyamirambo Executive Barber", category: "Barber & Grooming Salon", area: "Nyamirambo Commercial Hub", lat: -1.9782, lng: 30.0447, price: "5,000 RWF", phone: "+250788100200" },
+      { name: "Kimironko Fresh Market Stall", category: "Local Market & Fresh Produce", area: "Kimironko Market, Kigali", lat: -1.9487, lng: 30.1262, price: "3,500 RWF", phone: "+250788300400" },
+      { name: "Remera Gisimenti Barber", category: "Barber & Grooming Salon", area: "Remera Gisimenti Hub", lat: -1.9592, lng: 30.1095, price: "6,000 RWF", phone: "+250788500600" },
+      { name: "Downtown Kigali Kitenge Tailors", category: "Artisan Craft & Retail", area: "Downtown Kigali City Center", lat: -1.9441, lng: 30.0619, price: "15,000 RWF", phone: "+250788700800" }
     ];
 
     let recognition = null;
@@ -276,13 +280,18 @@
       document.getElementById('mapTab').classList.toggle('active', view === 'map');
       document.getElementById('adminTab').classList.toggle('active', view === 'admin');
 
-      if (view === 'map') initOrRefreshMap('all');
+      if (view === 'map') {
+        setTimeout(() => {
+          initOrRefreshMap('all');
+        }, 200);
+      }
       if (view === 'admin') renderAdminTable();
     }
 
     function previewFile() {
       const file = document.getElementById('fileInput').files[0];
       if (!file) return;
+      uploadedFileName = file.name;
       document.getElementById('uploadLabel').innerText = "📷 Loaded: " + file.name;
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -302,7 +311,7 @@
         body: JSON.stringify({
           whatsapp_number: phoneInput,
           image_base64: base64String,
-          filename: document.getElementById('itemCustomName').value.trim() || "Item",
+          filename: document.getElementById('itemCustomName').value.trim() || uploadedFileName || "Item",
           service_category: document.getElementById('serviceCategory').value,
           stock_quantity: parseInt(document.getElementById('stockQty').value) || 5,
           location_name: "Kimironko Market, Kigali",
@@ -322,7 +331,6 @@
       document.getElementById('stockBadge').innerText = "Stock: " + data.stock_quantity;
       document.getElementById('photoDescription').innerText = wonder.description;
       
-      // Render Trilingual Campaign including French
       document.getElementById('copyRw').innerText = spark.ad_copy_rw || "";
       document.getElementById('copyEn').innerText = spark.ad_copy_en || "";
       document.getElementById('copyFr').innerText = spark.ad_copy_fr || "";
@@ -335,6 +343,16 @@
       const studioImg = document.getElementById('studioPreview');
       studioImg.src = document.getElementById('rawPreview').src;
       studioImg.style.display = 'block';
+
+      directoryPlaces.unshift({
+        name: wonder.title,
+        category: wonder.category,
+        area: "Kimironko Market, Kigali",
+        lat: -1.9487,
+        lng: 30.1262,
+        price: wonder.estimated_price_rwf + " RWF",
+        phone: data.merchant_whatsapp
+      });
 
       ordersList.unshift({ time: new Date().toLocaleTimeString(), phone: data.merchant_whatsapp, title: wonder.title, stock: data.stock_quantity, price: wonder.estimated_price_rwf + " RWF", payload: data });
     }
@@ -392,10 +410,10 @@
 
     function renderAdminTable() {
       const tbody = document.getElementById('adminOrderTable');
-      if (ordersList.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No orders logged yet.</td></tr>`; return; }
+      if (ordersList.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No orders logged yet.</td></tr>`; return; }
       tbody.innerHTML = ordersList.map((o, idx) => `
         <tr><td>${o.time}</td><td>${o.phone}</td><td>${o.title}</td><td>${o.stock}</td><td>${o.price}</td>
-        <td><button onclick="openTelemetryModal(${idx})" style="padding:0.4rem; font-size:0.8rem; background:#0284c7; width:auto;">View JSON</button></td></tr>
+        <td><button onclick="openTelemetryModal(${idx})" style="padding:0.4rem; font-size:0.8rem; background:#0284c7; width:auto; cursor:pointer;">View JSON</button></td></tr>
       `).join('');
     }
 
@@ -407,18 +425,59 @@
     function closeModal() { document.getElementById('telemetryModal').style.display = 'none'; }
 
     function initOrRefreshMap(filterKey) {
+      const mapContainer = document.getElementById('map');
+      if (!mapContainer) return;
+
       if (!mapInstance) {
         mapInstance = L.map('map').setView([-1.9536, 30.0606], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(mapInstance);
       }
-      setTimeout(() => mapInstance.invalidateSize(), 150);
+      
+      mapInstance.invalidateSize();
+
       mapMarkers.forEach(m => mapInstance.removeLayer(m));
       mapMarkers = [];
-      directoryPlaces.forEach(p => {
+
+      const filtered = directoryPlaces.filter(p => {
+        if (filterKey === 'all') return true;
+        return p.category.toLowerCase().includes(filterKey.toLowerCase());
+      });
+
+      const cardsContainer = document.getElementById('directoryCards');
+      if (cardsContainer) {
+        cardsContainer.innerHTML = filtered.map(p => {
+          const cleanPhone = (p.phone || "").replace(/[^0-9]/g, '');
+          const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello! I found ' + p.name + ' on KuraCommerce Map.')}`;
+          const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+          return `
+            <div style="background:#0b111e; padding:1.1rem; border-radius:10px; border:1px solid #283548;">
+              <span class="badge">${p.category}</span>
+              <h4 style="margin:0.4rem 0; color:var(--accent-cyan);">${p.name}</h4>
+              <p style="margin:0.25rem 0; font-size:0.85rem; color:#cbd5e1;">📍 ${p.area} | 💰 ${p.price}</p>
+              <p style="margin:0.25rem 0; font-size:0.85rem; color:#94a3b8;">📲 WhatsApp: ${p.phone}</p>
+              <div style="display:flex; gap:0.5rem; margin-top:0.85rem;">
+                <a href="${waUrl}" target="_blank" style="flex:1; background:var(--accent-green); color:white; text-align:center; padding:0.5rem; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:700;">WhatsApp</a>
+                <a href="${gmapsUrl}" target="_blank" style="flex:1; background:#0284c7; color:white; text-align:center; padding:0.5rem; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:700;">Directions</a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      filtered.forEach(p => {
         const marker = L.marker([p.lat, p.lng]).addTo(mapInstance);
-        marker.bindPopup(`<b>${p.name}</b><br>${p.category}<br>💰 ${p.price}<br>📲 ${p.phone}`);
+        marker.bindPopup(`<b>${p.name}</b><br>${p.category}<br>📍 ${p.area}<br>💰 ${p.price}<br>📲 ${p.phone}`);
         mapMarkers.push(marker);
       });
+    }
+
+    function filterDirectory(key, btnEl) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      initOrRefreshMap(key);
     }
   </script>
 </body>

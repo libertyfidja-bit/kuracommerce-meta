@@ -10,10 +10,8 @@ from meta_client import (
 
 load_dotenv()
 
-# 1. Initialize Flask app FIRST
 app = Flask(__name__, template_folder="templates")
 
-# In-memory stores
 ADMIN_CREDENTIALS = {"password": "admin123"}
 inventory_database = {}
 
@@ -65,17 +63,24 @@ def process_product():
     wonder_metadata = analyze_product_with_muse_wonder(raw_image, filename, category_hint)
     product_title = wonder_metadata.get("title", "Featured Item")
     image_synthesis = synthesize_studio_with_muse_image(raw_image, product_title)
+    
+    # Restore Muse Spark Trilingual Campaign Generation (English, Kinyarwanda, French)
     spark_campaign = generate_ads_with_muse_spark(wonder_metadata, location_name)
 
+    low_stock_warning = ""
+    if stock_qty <= 2:
+        low_stock_warning = f"\n\n⚠️ *Low Stock Alert:* Only {stock_qty} unit(s) left!"
+
     whatsapp_reply = (
-        f"✅ *KuraCommerce AI Listing Active!*\n\n"
+        f"✅ *KuraCommerce AI Listing Ready!*\n\n"
         f"📦 *Item:* {product_title}\n"
         f"📂 *Category:* {wonder_metadata.get('category')}\n"
         f"📍 *Location:* {location_name}\n"
         f"💰 *Price:* {wonder_metadata.get('estimated_price_rwf')} RWF\n"
-        f"📊 *Stock:* {stock_qty} units\n\n"
-        f"🇷🇼 {spark_campaign.get('ad_copy_rw')}\n\n"
-        f"🇬🇧 {spark_campaign.get('ad_copy_en')}"
+        f"📊 *Stock:* {stock_qty} units{low_stock_warning}\n\n"
+        f"🇷🇼 *Kinyarwanda:*\n{spark_campaign.get('ad_copy_rw')}\n\n"
+        f"🇬🇧 *English:*\n{spark_campaign.get('ad_copy_en')}\n\n"
+        f"🇫🇷 *Français:*\n{spark_campaign.get('ad_copy_fr')}"
     )
 
     return jsonify({
@@ -84,6 +89,7 @@ def process_product():
         "location_name": location_name,
         "stock_quantity": stock_qty,
         "muse_wonder_catalog": wonder_metadata,
+        "muse_spark_campaign": spark_campaign,
         "whatsapp_formatted_message": whatsapp_reply
     }), 200
 

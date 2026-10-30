@@ -3,482 +3,448 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KuraCommerce Hub | AI Studio, USSD Gateway & Map Directory</title>
+  <title>KuraCommerce Hub | Listings, Ads and Map for Rwandan Merchants</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root {
-      --bg-main: #090d16;
-      --card-bg: #131c31;
-      --border-color: #1e293b;
-      --accent-green: #10b981;
-      --accent-cyan: #38bdf8;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #090d16; --card: #131c31; --line: #283548; --green: #10b981; --cyan: #38bdf8;
+      --amber: #f59e0b; --text: #f8fafc; --muted: #94a3b8; --field: #0b111e;
     }
-    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 1.5rem; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 1.5rem; }
     .container { max-width: 1040px; margin: 0 auto; }
     header { text-align: center; margin-bottom: 1.5rem; }
-    h1 { color: var(--accent-cyan); margin-bottom: 0.25rem; font-size: 2.2rem; }
-    p { color: var(--text-muted); }
-    .nav-tabs { display: flex; justify-content: center; gap: 0.6rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
-    .nav-tab { background: #1a2744; border: 1px solid #334155; color: var(--text-muted); padding: 0.65rem 1.1rem; border-radius: 10px; cursor: pointer; font-weight: 600; width: auto; }
-    .nav-tab:hover { border-color: var(--accent-cyan); color: white; }
-    .nav-tab.active { background: #0284c7; color: white; border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
-    .card { background: var(--card-bg); border-radius: 14px; padding: 1.75rem; border: 1px solid #283548; margin-bottom: 1.5rem; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
-    .input-group { margin-bottom: 0.85rem; }
-    .input-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #e2e8f0; font-size: 0.9rem; }
-    .input-field { width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #334155; background: #0b111e; color: var(--text-main); font-size: 0.95rem; box-sizing: border-box; }
-    .upload-box { border: 2px dashed var(--accent-cyan); border-radius: 12px; padding: 1.75rem; text-align: center; cursor: pointer; background: rgba(56, 189, 248, 0.04); }
-    
-    .voice-box { background: #0b111e; border: 1px solid #334155; border-radius: 12px; padding: 1.1rem; margin-top: 1rem; text-align: center; }
-    .mic-btn { background: #059669; color: white; border: none; border-radius: 50px; padding: 0.65rem 1.5rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; width: auto; }
-    .mic-btn.recording { background: #dc2626; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } }
-
-    button.primary-action { background: #0284c7; color: white; border: none; border-radius: 10px; padding: 0.9rem; font-weight: 700; cursor: pointer; margin-top: 1.25rem; width: 100%; font-size: 1rem; }
-    .order-btn { background: var(--accent-green); margin-top: 1rem; text-decoration: none; display: block; text-align: center; padding: 0.9rem; border-radius: 10px; color: white; font-weight: 700; }
-    
-    .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
-    img { max-width: 100%; border-radius: 10px; border: 1px solid #334155; display: none; }
-    .result-box, .view-section { display: none; }
-    .badge { display: inline-block; background: #0284c7; color: white; padding: 0.35rem 0.7rem; border-radius: 8px; font-size: 0.85rem; margin-right: 0.4rem; font-weight: 600; }
-    .wa-box { background: #064e3b; border: 1px solid var(--accent-green); padding: 1rem; border-radius: 10px; white-space: pre-wrap; margin-top: 1rem; color: #ecfdf5; font-size: 0.9rem; }
+    h1 { color: var(--cyan); margin: 0 0 .25rem; font-size: 2.1rem; }
+    p { color: var(--muted); }
+    button { font: inherit; cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .tabs { display: flex; justify-content: center; gap: .6rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab { background: #1a2744; border: 1px solid #334155; color: var(--muted); padding: .65rem 1.1rem; border-radius: 10px; font-weight: 600; }
+    .tab:hover { border-color: var(--cyan); color: #fff; }
+    .tab.active { background: #0284c7; color: #fff; border-color: var(--cyan); }
+    .card { background: var(--card); border-radius: 14px; padding: 1.5rem; border: 1px solid var(--line); margin-bottom: 1.5rem; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+    label { display: block; margin-bottom: .35rem; font-weight: 600; color: #e2e8f0; font-size: .9rem; }
+    .field { width: 100%; padding: .7rem; border-radius: 10px; border: 1px solid #334155; background: var(--field); color: var(--text); font-size: .95rem; }
+    .group { margin-bottom: .85rem; }
+    .voice, .upload { background: var(--field); border: 1px solid #334155; border-radius: 12px; padding: 1rem; margin-top: 1rem; text-align: center; }
+    .upload { border: 2px dashed var(--cyan); cursor: pointer; padding: 1.5rem; }
+    .row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; align-items: center; }
+    .btn { border: 0; border-radius: 10px; padding: .6rem 1.1rem; font-weight: 700; color: #fff; background: #0284c7; }
+    .btn.green { background: #059669; } .btn.red { background: #dc2626; } .btn.small { padding: .4rem .7rem; font-size: .8rem; }
+    .btn.wide { width: 100%; padding: .9rem; margin-top: 1.25rem; }
+    .btn:disabled { opacity: .6; cursor: wait; }
+    .recording { background: #dc2626; }
+    .badge { display: inline-block; background: #0284c7; color: #fff; padding: .3rem .7rem; border-radius: 8px; font-size: .85rem; margin: 0 .4rem .4rem 0; font-weight: 600; }
+    .chip { display: inline-block; border-radius: 8px; padding: .25rem .6rem; font-size: .8rem; margin: 0 .4rem .4rem 0; border: 1px solid var(--green); color: #a7f3d0; }
+    .chip.fallback { border-color: var(--amber); color: #fde68a; }
+    .notice { border: 1px solid var(--amber); color: #fde68a; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; font-size: .9rem; }
+    .wa { background: #064e3b; border: 1px solid var(--green); padding: 1rem; border-radius: 10px; white-space: pre-wrap; margin-top: 1rem; color: #ecfdf5; font-size: .9rem; }
+    .order { display: block; text-align: center; background: var(--green); color: #fff; text-decoration: none; font-weight: 700; padding: .9rem; border-radius: 10px; margin-top: 1rem; }
+    img.pic { max-width: 100%; border-radius: 10px; border: 1px solid #334155; display: none; }
+    .hidden { display: none; }
+    #toast { position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%); max-width: min(92vw, 560px); z-index: 10000;
+             background: #0f172a; border: 1px solid var(--cyan); color: var(--text); padding: .8rem 1.1rem; border-radius: 10px; font-size: .95rem; display: none; }
+    #toast.error { border-color: #ef4444; } #toast.ok { border-color: var(--green); }
+    .hint { font-size: .85rem; color: var(--muted); margin: .4rem 0 0; }
     #map { height: 380px; width: 100%; border-radius: 12px; border: 1px solid #334155; margin-top: 1rem; }
-    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .filter-btn { width: auto; margin-top: 0; padding: 0.45rem 0.9rem; font-size: 0.85rem; background: #1e293b; color: var(--text-muted); border: 1px solid #334155; cursor: pointer; }
-    .filter-btn.active { background: var(--accent-green); color: white; border-color: var(--accent-green); }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
-    th, td { border: 1px solid #283548; padding: 0.75rem; text-align: left; }
-    th { background: #0b111e; color: var(--accent-cyan); }
-
-    /* Modals */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; }
-    .modal-content { background: var(--card-bg); border: 1px solid var(--accent-cyan); border-radius: 14px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.5rem; }
-    .modal-pre { background: #0b111e; padding: 1rem; border-radius: 8px; color: #a5f3fc; overflow-x: auto; font-size: 0.85rem; }
+    .filters { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .filter { background: #1e293b; color: var(--muted); border: 1px solid #334155; border-radius: 10px; padding: .45rem .9rem; font-size: .85rem; }
+    .filter.active { background: var(--green); color: #fff; border-color: var(--green); }
+    .place { background: var(--field); padding: 1rem; border-radius: 10px; border: 1px solid var(--line); }
+    .place h4 { margin: .4rem 0; color: var(--cyan); }
+    .place p { margin: .25rem 0; font-size: .85rem; }
+    .place a { flex: 1; color: #fff; text-align: center; padding: .5rem; border-radius: 8px; text-decoration: none; font-size: .85rem; font-weight: 700; }
+    .screen { background: var(--field); border: 2px solid var(--cyan); border-radius: 14px; padding: 1.25rem; font-family: monospace; text-align: left; color: var(--cyan); white-space: pre-wrap; margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .9rem; }
+    th, td { border: 1px solid var(--line); padding: .6rem; text-align: left; }
+    th { background: var(--field); color: var(--cyan); }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; }
+    .modal { background: var(--card); border: 1px solid var(--cyan); border-radius: 14px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.5rem; }
+    pre.json { background: var(--field); padding: 1rem; border-radius: 8px; color: #a5f3fc; overflow-x: auto; font-size: .85rem; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>KuraCommerce Hub</h1>
-      <p>AI Voice & Vision Studio, Offline USSD Gateway (*250#), Stock Alerts & Map Directory</p>
-    </header>
+<div class="container">
+  <header>
+    <h1>KuraCommerce Hub</h1>
+    <p>Turn a phone photo into a priced, trilingual WhatsApp listing, then find it on the map.</p>
+  </header>
 
-    <div class="nav-tabs">
-      <button class="nav-tab active" id="userTab" onclick="switchView('user')">1. Studio & Voice AI</button>
-      <button class="nav-tab" id="ussdTab" onclick="switchView('ussd')">2. USSD Offline Mode (*250#)</button>
-      <button class="nav-tab" id="mapTab" onclick="switchView('map')">3. Map Directory</button>
-      <button class="nav-tab" id="adminTab" onclick="switchView('admin')">4. Admin Dashboard 🔒</button>
-    </div>
-
-    <!-- 1. USER & VOICE STUDIO -->
-    <div id="userView" class="view-section" style="display: block;">
-      <div class="card">
-        <div class="form-grid">
-          <div class="input-group">
-            <label for="whatsappNumber">📲 Seller WhatsApp Number:</label>
-            <input type="tel" id="whatsappNumber" class="input-field" placeholder="e.g. +250 788 000 000" required>
-          </div>
-          <div class="input-group">
-            <label for="serviceCategory">🏷️ Category:</label>
-            <select id="serviceCategory" class="input-field">
-              <option value="Artisan Craft & Retail">Artisan Craft & Retail Product</option>
-              <option value="Barber & Grooming Salon">Barber Shop & Hair Salon</option>
-              <option value="Local Market & Fresh Produce">Local Market & Fresh Produce</option>
-              <option value="Fashion & Custom Tailoring">Fashion & Custom Tailoring</option>
-              <option value="Electronics & Repair">Electronics & Repair Shop</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label for="itemCustomName">✏️ Item Name or Voice Transcript:</label>
-            <input type="text" id="itemCustomName" class="input-field" placeholder="e.g. Kitenge Shirt / Speak below">
-          </div>
-          <div class="input-group">
-            <label for="stockQty">📊 Initial Stock Quantity (Triggers WhatsApp Alert if ≤ 2):</label>
-            <input type="number" id="stockQty" class="input-field" value="5" min="1" max="100">
-          </div>
-        </div>
-
-        <div class="voice-box">
-          <label style="font-weight: 600; color: var(--accent-cyan); display:block; margin-bottom: 0.3rem;">🎙️ Voice-to-Listing (Kinyarwanda / English):</label>
-          <button type="button" id="micBtn" class="mic-btn" onclick="toggleVoiceRecording()">🎤 Start Voice Recording</button>
-          <p id="voiceStatus" style="font-size: 0.8rem; color: var(--accent-green); margin-top: 0.4rem;"></p>
-        </div>
-
-        <div class="upload-box" style="margin-top: 1rem;" onclick="document.getElementById('fileInput').click()">
-          <p id="uploadLabel">📷 Click or Drag Photo of Product / Storefront</p>
-          <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewFile()">
-        </div>
-
-        <div class="preview-grid">
-          <div><h4>Original Photo</h4><img id="rawPreview" alt="Raw"></div>
-          <div><h4>Studio Enhanced</h4><img id="studioPreview" alt="Studio"></div>
-        </div>
-        <button class="primary-action" onclick="processProduct()">Run AI Valuation & Generate Trilingual Campaign</button>
-      </div>
-
-      <div class="card result-box" id="resultCard">
-        <h3>3. AI Valuation & Stock WhatsApp Alert</h3>
-        <div>
-          <span class="badge" id="categoryBadge"></span>
-          <span class="badge" id="priceBadge"></span>
-          <span class="badge" id="stockBadge">Stock</span>
-        </div>
-        <h2 id="productTitle" style="color: var(--accent-cyan); margin-top: 0.75rem;"></h2>
-        <p><strong>Inspection:</strong> <span id="photoDescription" style="color: #cbd5e1;"></span></p>
-
-        <h3>Trilingual Campaign & WhatsApp Alert Preview</h3>
-        <p><strong>🇷🇼 Kinyarwanda:</strong> <span id="copyRw"></span></p>
-        <p><strong>🇬🇧 English:</strong> <span id="copyEn"></span></p>
-        <p><strong>🇫🇷 Français:</strong> <span id="copyFr"></span></p>
-
-        <div class="wa-box" id="waMessagePreview"></div>
-        <a id="orderWhatsAppBtn" href="#" target="_blank" class="order-btn">🛒 Order / Book on WhatsApp Now</a>
-      </div>
-    </div>
-
-    <!-- 2. USSD OFFLINE SIMULATOR (*250#) -->
-    <div id="ussdView" class="view-section">
-      <div class="card" style="max-width: 600px; margin: 0 auto; text-align: center;">
-        <h3>📱 Offline USSD Gateway Simulator (*250#)</h3>
-        <p>Simulating telecom carrier integration for rural Rwandan merchants with zero internet access.</p>
-        
-        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; justify-content: center;">
-          <input type="text" id="ussdCodeInput" class="input-field" value="*250#" style="max-width: 140px; text-align: center; font-weight: bold;" placeholder="*250#">
-          <button onclick="dialUssd()" style="width: auto; margin: 0; background: var(--accent-cyan); cursor: pointer;">Dial Code</button>
-        </div>
-
-        <div style="background: #0b111e; border: 2px solid var(--accent-cyan); border-radius: 14px; padding: 1.5rem; font-family: monospace; text-align: left;">
-          <p id="ussdScreenText" style="color: #38bdf8; white-space: pre-wrap; font-size: 1.05rem; margin: 0;">Dial *250# above to open gateway session...</p>
-        </div>
-
-        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-          <input type="text" id="ussdInput" class="input-field" placeholder="Enter option (1, 2, 3, 4)" style="margin: 0;">
-          <button onclick="sendUssdInput()" style="width: auto; margin: 0; background: var(--accent-green); cursor: pointer;">Send Input</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. MAP DIRECTORY -->
-    <div id="mapView" class="view-section">
-      <div class="card">
-        <h3>Live Directory: Shops, Barbers & Markets</h3>
-        <div class="filter-bar">
-          <button class="filter-btn active" onclick="filterDirectory('all', this)">All Places</button>
-          <button class="filter-btn" onclick="filterDirectory('Barber', this)">💈 Barbers & Salons</button>
-          <button class="filter-btn" onclick="filterDirectory('Market', this)">🥬 Local Markets</button>
-          <button class="filter-btn" onclick="filterDirectory('Craft', this)">🧺 Crafts & Retail</button>
-        </div>
-        <div id="map"></div>
-        <div id="directoryCards" style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"></div>
-      </div>
-    </div>
-
-    <!-- 4. ADMIN DASHBOARD -->
-    <div id="adminView" class="view-section">
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <h3>Admin Orders & Telemetry</h3>
-            <p style="margin: 0;">Manage orders, stock levels, and admin credentials.</p>
-          </div>
-          <button onclick="openPasswordResetModal()" style="width: auto; margin: 0; background: #d97706; padding: 0.6rem 1.2rem; font-size: 0.9rem; cursor: pointer;">🔐 Reset Admin Password</button>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>WhatsApp</th>
-              <th>Item</th>
-              <th>Stock</th>
-              <th>Price</th>
-              <th>Telemetry</th>
-            </tr>
-          </thead>
-          <tbody id="adminOrderTable">
-            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No orders logged yet.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  <div class="tabs" role="tablist">
+    <button class="tab active" id="tab-studio" onclick="switchView('studio')">Studio</button>
+    <button class="tab" id="tab-ussd" onclick="switchView('ussd')">USSD simulator</button>
+    <button class="tab" id="tab-map" onclick="switchView('map')">Map directory</button>
+    <button class="tab" id="tab-admin" onclick="switchView('admin')">Admin</button>
   </div>
 
-  <!-- PASSWORD RESET MODAL -->
-  <div class="modal-overlay" id="passwordModal">
-    <div class="modal-content" style="max-width: 450px;">
-      <h3 style="color: var(--accent-cyan); margin-top: 0;">Reset Admin Password</h3>
-      <div class="input-group">
-        <label>Current Password:</label>
-        <input type="password" id="oldPwdInput" class="input-field" placeholder="Default: admin123">
+  <div id="statusBanner" class="notice hidden"></div>
+
+  <!-- STUDIO -->
+  <section id="view-studio">
+    <div class="card">
+      <div class="grid2">
+        <div class="group"><label for="whatsappNumber">Seller WhatsApp number</label>
+          <input type="tel" id="whatsappNumber" class="field" placeholder="+250 788 000 000"></div>
+        <div class="group"><label for="serviceCategory">Category</label>
+          <select id="serviceCategory" class="field">
+            <option value="Artisan Craft & Retail">Artisan craft and retail product</option>
+            <option value="Barber & Grooming Salon">Barber shop and hair salon</option>
+            <option value="Local Market & Fresh Produce">Local market and fresh produce</option>
+            <option value="Fashion & Custom Tailoring">Fashion and custom tailoring</option>
+            <option value="Electronics & Repair">Electronics and repair shop</option>
+          </select></div>
+        <div class="group"><label for="itemName">Item name (or speak it below)</label>
+          <input type="text" id="itemName" class="field" placeholder="Kitenge shirt"></div>
+        <div class="group"><label for="stockQty">Stock quantity (WhatsApp alert at 2 or fewer)</label>
+          <input type="number" id="stockQty" class="field" value="5" min="0" max="10000"></div>
+        <div class="group"><label for="locationName">Where are you selling?</label>
+          <input type="text" id="locationName" class="field" value="Kimironko Market, Kigali"></div>
+        <div class="group"><label for="useGps">Map pin</label>
+          <label style="font-weight:400"><input type="checkbox" id="useGps"> Use my current location for the pin</label></div>
       </div>
-      <div class="input-group">
-        <label>New Password:</label>
-        <input type="password" id="newPwdInput" class="input-field" placeholder="Enter new secure password">
+
+      <div class="voice">
+        <label for="voiceLang">Voice to item name</label>
+        <div class="row">
+          <select id="voiceLang" class="field" style="width:auto">
+            <option value="rw-RW">Kinyarwanda</option><option value="en-US">English</option><option value="fr-FR">Français</option>
+          </select>
+          <button type="button" id="micBtn" class="btn green" onclick="toggleVoice()">Start recording</button>
+        </div>
+        <p id="voiceStatus" class="hint" role="status"></p>
+        <p class="hint">Works in Chrome and Edge over https or localhost. Allow the microphone when asked. Kinyarwanda support depends on the browser; if it is refused, choose English or Français or type the name.</p>
       </div>
-      <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
-        <button onclick="submitPasswordReset()" style="background: var(--accent-green); margin:0; cursor: pointer;">Update Password</button>
-        <button onclick="closePasswordModal()" style="background: #dc2626; margin:0; cursor: pointer;">Cancel</button>
+
+      <div class="upload" onclick="document.getElementById('fileInput').click()">
+        <span id="uploadLabel">Click to add a photo of your product or storefront</span>
+        <img id="thumb" class="pic" alt="Selected photo preview" style="margin:.75rem auto 0;max-height:180px">
+        <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="loadPhoto()">
+      </div>
+
+      <button id="runBtn" class="btn wide" onclick="processProduct()">Create listing and campaign</button>
+    </div>
+
+    <div class="card hidden" id="resultCard">
+      <div class="grid2">
+        <div><h4>Original photo</h4><img id="rawPreview" class="pic" alt="Original upload"></div>
+        <div><h4>Studio version</h4><img id="studioPreview" class="pic" alt="Studio-enhanced version"></div>
+      </div>
+      <div style="margin-top:1rem">
+        <span class="badge" id="categoryBadge"></span><span class="badge" id="priceBadge"></span><span class="badge" id="stockBadge"></span>
+      </div>
+      <h2 id="productTitle" style="color:var(--cyan);margin:.5rem 0"></h2>
+      <p id="photoDescription"></p>
+      <div id="lowStock" class="notice hidden">Low stock: only a few units left.</div>
+
+      <h4>Models used for this listing</h4>
+      <div id="pipelineChips"></div>
+      <div id="fallbackNotice" class="notice hidden">One or more steps used the local fallback instead of an AI model. Check the amber labels above.</div>
+
+      <h4>Campaign</h4>
+      <p><strong>Kinyarwanda:</strong> <span id="copyRw"></span></p>
+      <p><strong>English:</strong> <span id="copyEn"></span></p>
+      <p><strong>Français:</strong> <span id="copyFr"></span></p>
+      <div class="wa" id="waPreview"></div>
+      <a id="orderBtn" href="#" target="_blank" rel="noopener" class="order">Order on WhatsApp</a>
+    </div>
+  </section>
+
+  <!-- USSD -->
+  <section id="view-ussd" class="hidden">
+    <div class="card" style="max-width:600px;margin:0 auto;text-align:center">
+      <h3>USSD simulator (*250#)</h3>
+      <p>A simulation of the menu a merchant without internet would see. It is not connected to a telecom network.</p>
+      <div class="row" style="margin-bottom:1rem">
+        <input type="text" id="ussdCode" class="field" value="*250#" style="max-width:140px;text-align:center;font-weight:700">
+        <button class="btn" onclick="dial('')">Dial</button>
+      </div>
+      <pre class="screen" id="ussdScreen">Dial *250# to start.</pre>
+      <div class="row" style="margin-top:1rem">
+        <input type="text" id="ussdInput" class="field" placeholder="Enter 1, 2, 3 or 4" style="flex:1">
+        <button class="btn green" onclick="sendUssd()">Send</button>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- TELEMETRY MODAL -->
-  <div class="modal-overlay" id="telemetryModal">
-    <div class="modal-content">
-      <h3 id="modalTitle" style="color: var(--accent-cyan); margin-top: 0;">Telemetry Details</h3>
-      <pre class="modal-pre" id="modalJsonContent"></pre>
-      <button onclick="closeModal()" style="background: #dc2626; margin-top: 1rem; width: auto; padding: 0.5rem 1rem; cursor: pointer;">Close</button>
+  <!-- MAP -->
+  <section id="view-map" class="hidden">
+    <div class="card">
+      <h3>Shops, barbers and markets</h3>
+      <p>Entries marked "Sample" are placeholders. Every other pin is a listing created in the studio.</p>
+      <div class="filters">
+        <button class="filter active" onclick="filterMap('all', this)">All places</button>
+        <button class="filter" onclick="filterMap('barber', this)">Barbers and salons</button>
+        <button class="filter" onclick="filterMap('market', this)">Local markets</button>
+        <button class="filter" onclick="filterMap('craft', this)">Crafts, fashion and repair</button>
+      </div>
+      <div id="map"></div>
+      <div id="placeCards" class="grid2" style="margin-top:1rem"></div>
     </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="view-admin" class="hidden">
+    <div class="card" id="adminLogin" style="max-width:420px;margin:0 auto">
+      <h3>Admin sign in</h3>
+      <div class="group"><label for="adminPwd">Password</label>
+        <input type="password" id="adminPwd" class="field" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+      <button class="btn wide" style="margin-top:.5rem" onclick="adminLogin()">Sign in</button>
+    </div>
+    <div class="card hidden" id="adminPanel">
+      <div class="row" style="justify-content:space-between">
+        <div><h3 style="margin:0">Listings and model telemetry</h3><p style="margin:0">All listings saved by the server.</p></div>
+        <button class="btn red small" onclick="adminLogout()">Sign out</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>Time</th><th>WhatsApp</th><th>Item</th><th>Stock</th><th>Price</th><th>Models</th></tr></thead>
+        <tbody id="adminRows"></tbody></table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="overlay" id="telemetryModal">
+  <div class="modal">
+    <h3 id="modalTitle" style="color:var(--cyan);margin-top:0"></h3>
+    <pre class="json" id="modalJson"></pre>
+    <button class="btn red small" onclick="document.getElementById('telemetryModal').style.display='none'">Close</button>
   </div>
+</div>
 
-  <script>
-    let base64String = "";
-    let uploadedFileName = "";
-    let ordersList = [];
-    let isAdminAuthenticated = false;
-    let currentAdminPwd = "admin123";
-    let mapInstance = null;
-    let mapMarkers = [];
+<script>
+  const $ = (id) => document.getElementById(id);
+  let toastTimer = null;
+  function notify(msg, kind) {
+    const t = $('toast');
+    t.textContent = msg; t.className = kind || ''; t.style.display = 'block';
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.display = 'none'; }, 7000);
+  }
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const STEP_LABEL = { sam: 'SAM 3.1', wonder: 'Muse Wonder', image: 'Muse Image', spark: 'Muse Spark' };
+  const GROUPS = { barber: /barber|salon/i, market: /market|produce/i, craft: /craft|retail|fashion|tailor|electronic|repair/i };
 
-    let directoryPlaces = [
-      { name: "Nyamirambo Executive Barber", category: "Barber & Grooming Salon", area: "Nyamirambo Commercial Hub", lat: -1.9782, lng: 30.0447, price: "5,000 RWF", phone: "+250788100200" },
-      { name: "Kimironko Fresh Market Stall", category: "Local Market & Fresh Produce", area: "Kimironko Market, Kigali", lat: -1.9487, lng: 30.1262, price: "3,500 RWF", phone: "+250788300400" },
-      { name: "Remera Gisimenti Barber", category: "Barber & Grooming Salon", area: "Remera Gisimenti Hub", lat: -1.9592, lng: 30.1095, price: "6,000 RWF", phone: "+250788500600" },
-      { name: "Downtown Kigali Kitenge Tailors", category: "Artisan Craft & Retail", area: "Downtown Kigali City Center", lat: -1.9441, lng: 30.0619, price: "15,000 RWF", phone: "+250788700800" }
-    ];
+  let photoDataUrl = '', photoName = '', adminToken = '', adminData = [], mapObj = null, markers = [], mapFilter = 'all', recog = null, recording = false;
 
-    let recognition = null;
-    let isRecording = false;
-    function toggleVoiceRecording() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) { alert("Speech recognition not supported in this browser."); return; }
-      if (!isRecording) {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'rw-RW';
-        recognition.onstart = () => { isRecording = true; document.getElementById('micBtn').classList.add('recording'); document.getElementById('micBtn').innerText = "🔴 Listening..."; };
-        recognition.onresult = (e) => { document.getElementById('itemCustomName').value = e.results[0][0].transcript; document.getElementById('voiceStatus').innerText = `Captured: "${e.results[0][0].transcript}"`; };
-        recognition.onend = () => { isRecording = false; document.getElementById('micBtn').classList.remove('recording'); document.getElementById('micBtn').innerText = "🎤 Start Voice Recording"; };
-        recognition.start();
-      } else { if (recognition) recognition.stop(); }
+  function switchView(v) {
+    ['studio', 'ussd', 'map', 'admin'].forEach((n) => {
+      $('view-' + n).classList.toggle('hidden', n !== v);
+      $('tab-' + n).classList.toggle('active', n === v);
+    });
+    if (v === 'map') setTimeout(loadMap, 150);
+    if (v === 'admin' && adminToken) loadAdmin();
+  }
+
+  // Tell visitors straight away whether the real Meta models are connected.
+  fetch('/api/status').then((r) => r.json()).then((s) => {
+    if (!s.meta_api_configured) {
+      const b = $('statusBanner');
+      b.textContent = 'No model API is configured on this server. Listings use the local fallback, not an AI model.';
+      b.classList.remove('hidden');
     }
+  }).catch(() => {});
 
-    function switchView(view) {
-      if (view === 'admin' && !isAdminAuthenticated) {
-        const pwd = prompt("Enter Admin Password (default: admin123):");
-        if (pwd === currentAdminPwd) { isAdminAuthenticated = true; } 
-        else { alert("Incorrect password!"); return; }
-      }
-      document.getElementById('userView').style.display = (view === 'user') ? 'block' : 'none';
-      document.getElementById('ussdView').style.display = (view === 'ussd') ? 'block' : 'none';
-      document.getElementById('mapView').style.display = (view === 'map') ? 'block' : 'none';
-      document.getElementById('adminView').style.display = (view === 'admin') ? 'block' : 'none';
+  // ---- Voice ----
+  function setVoice(msg, isError) {
+    const el = $('voiceStatus');
+    el.textContent = msg; el.style.color = isError ? '#fca5a5' : 'var(--green)';
+    if (isError) notify(msg, 'error');
+  }
+  const MIC_HELP = 'Microphone is blocked. Click the lock icon in the address bar, set Microphone to Allow, then reload. ' +
+    'If this page is open inside the VS Code or Codespaces preview panel, open the same address in a normal Chrome or Edge tab instead.';
 
-      document.getElementById('userTab').classList.toggle('active', view === 'user');
-      document.getElementById('ussdTab').classList.toggle('active', view === 'ussd');
-      document.getElementById('mapTab').classList.toggle('active', view === 'map');
-      document.getElementById('adminTab').classList.toggle('active', view === 'admin');
-
-      if (view === 'map') {
-        setTimeout(() => {
-          initOrRefreshMap('all');
-        }, 200);
-      }
-      if (view === 'admin') renderAdminTable();
+  async function toggleVoice() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { setVoice('This browser has no speech recognition. Use Chrome or Edge, or type the item name.', true); return; }
+    if (recording) { recog && recog.stop(); return; }
+    if (!window.isSecureContext) { setVoice('Voice input needs a secure page (https or localhost).', true); return; }
+    // Ask for the microphone first so the browser shows its permission prompt and we get a precise error.
+    setVoice('Asking for microphone access...', false);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+    } catch (e) {
+      if (e && e.name === 'NotFoundError') setVoice('No microphone found on this device.', true);
+      else if (e && e.name === 'NotReadableError') setVoice('The microphone is in use by another app. Close it and try again.', true);
+      else setVoice(MIC_HELP, true);
+      return;
     }
-
-    function previewFile() {
-      const file = document.getElementById('fileInput').files[0];
-      if (!file) return;
-      uploadedFileName = file.name;
-      document.getElementById('uploadLabel').innerText = "📷 Loaded: " + file.name;
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        base64String = reader.result.split(',')[1];
-        const p = document.getElementById('rawPreview'); p.src = reader.result; p.style.display = 'block';
+    recog = new SR();
+    recog.lang = $('voiceLang').value;
+    recog.interimResults = false; recog.maxAlternatives = 1;
+    recog.onstart = () => { recording = true; $('micBtn').classList.add('recording'); $('micBtn').textContent = 'Listening... tap to stop'; setVoice('Listening. Say the item name.', false); };
+    recog.onresult = (e) => { const t = e.results[0][0].transcript; $('itemName').value = t; setVoice('Heard: ' + t, false); };
+    recog.onerror = (e) => {
+      const msgs = {
+        'not-allowed': MIC_HELP, 'service-not-allowed': MIC_HELP,
+        'language-not-supported': 'This browser cannot recognise that language. Pick English or Français, or type the name.',
+        'no-speech': 'Nothing was heard. Tap the button and speak closer to the microphone.',
+        'audio-capture': 'No working microphone was found.',
+        'network': 'The speech service could not be reached. Check your internet connection. (Brave blocks it by default; use Chrome or Edge.)',
+        'aborted': 'Voice input was stopped.'
       };
-      reader.readAsDataURL(file);
-    }
+      setVoice(msgs[e.error] || ('Voice input failed (' + e.error + '). Type the name instead.'), e.error !== 'aborted');
+    };
+    recog.onend = () => { recording = false; $('micBtn').classList.remove('recording'); $('micBtn').textContent = 'Start recording'; };
+    try { recog.start(); } catch (err) { setVoice('Could not start voice input. Reload the page and try again.', true); }
+  }
 
-    async function processProduct() {
-      const phoneInput = document.getElementById('whatsappNumber').value.trim();
-      if (!phoneInput || !base64String) { alert("Please provide WhatsApp number and photo."); return; }
+  // ---- Photo (resized in the browser before upload) ----
+  function loadPhoto() {
+    const file = $('fileInput').files[0];
+    if (!file) return;
+    photoName = file.name;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 1024 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      photoDataUrl = c.toDataURL('image/jpeg', 0.85);
+      URL.revokeObjectURL(url);
+      $('uploadLabel').textContent = 'Loaded: ' + file.name; notify('Photo added: ' + file.name, 'ok');
+      ['rawPreview', 'thumb'].forEach((id) => { const p = $(id); p.src = photoDataUrl; p.style.display = 'block'; });
+    };
+    img.onerror = () => notify('That file could not be read as an image.');
+    img.src = url;
+  }
 
+  function getCoords() {
+    const fallback = { lat: -1.9487, lng: 30.1262 };
+    if (!$('useGps').checked || !navigator.geolocation) return Promise.resolve(fallback);
+    return new Promise((resolve) => navigator.geolocation.getCurrentPosition(
+      (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }), () => resolve(fallback), { timeout: 6000 }));
+  }
+
+  async function processProduct() {
+    const phone = $('whatsappNumber').value.trim();
+    if (!phone || !photoDataUrl) { notify('Add your WhatsApp number and a photo first.'); return; }
+    const btn = $('runBtn');
+    btn.disabled = true; btn.textContent = 'Running the model pipeline...';
+    try {
+      const pos = await getCoords();
       const res = await fetch('/api/process-product', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          whatsapp_number: phoneInput,
-          image_base64: base64String,
-          filename: document.getElementById('itemCustomName').value.trim() || uploadedFileName || "Item",
-          service_category: document.getElementById('serviceCategory').value,
-          stock_quantity: parseInt(document.getElementById('stockQty').value) || 5,
-          location_name: "Kimironko Market, Kigali",
-          lat: -1.9487, lng: 30.1262
+          whatsapp_number: phone, image_base64: photoDataUrl.split(',')[1],
+          filename: $('itemName').value.trim() || photoName || 'Item',
+          service_category: $('serviceCategory').value,
+          stock_quantity: parseInt($('stockQty').value, 10),
+          location_name: $('locationName').value.trim() || 'Kigali', lat: pos.lat, lng: pos.lng
         })
       });
       const data = await res.json();
-      if (!res.ok) { alert(data.error); return; }
-
-      document.getElementById('resultCard').style.display = 'block';
-      const wonder = data.muse_wonder_catalog || {};
-      const spark = data.muse_spark_campaign || {};
-
-      document.getElementById('productTitle').innerText = wonder.title;
-      document.getElementById('categoryBadge').innerText = wonder.category;
-      document.getElementById('priceBadge').innerText = wonder.estimated_price_rwf + " RWF";
-      document.getElementById('stockBadge').innerText = "Stock: " + data.stock_quantity;
-      document.getElementById('photoDescription').innerText = wonder.description;
-      
-      document.getElementById('copyRw').innerText = spark.ad_copy_rw || "";
-      document.getElementById('copyEn').innerText = spark.ad_copy_en || "";
-      document.getElementById('copyFr').innerText = spark.ad_copy_fr || "";
-      
-      document.getElementById('waMessagePreview').innerText = data.whatsapp_formatted_message;
-
-      const waText = encodeURIComponent(`Hello! I want to order ${wonder.title} (${wonder.estimated_price_rwf} RWF) via KuraCommerce.`);
-      document.getElementById('orderWhatsAppBtn').href = `https://wa.me/${data.merchant_whatsapp.replace(/[^0-9]/g,'')}?text=${waText}`;
-
-      const studioImg = document.getElementById('studioPreview');
-      studioImg.src = document.getElementById('rawPreview').src;
-      studioImg.style.display = 'block';
-
-      directoryPlaces.unshift({
-        name: wonder.title,
-        category: wonder.category,
-        area: "Kimironko Market, Kigali",
-        lat: -1.9487,
-        lng: 30.1262,
-        price: wonder.estimated_price_rwf + " RWF",
-        phone: data.merchant_whatsapp
-      });
-
-      ordersList.unshift({ time: new Date().toLocaleTimeString(), phone: data.merchant_whatsapp, title: wonder.title, stock: data.stock_quantity, price: wonder.estimated_price_rwf + " RWF", payload: data });
+      if (!res.ok) { notify(data.error || 'Something went wrong. Try again.'); return; }
+      renderResult(data);
+    } catch (e) {
+      notify('Could not reach the server. Check your connection and try again.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create listing and campaign';
     }
+  }
 
-    async function dialUssd() {
-      const code = document.getElementById('ussdCodeInput').value.trim();
-      const res = await fetch('/api/ussd-fallback', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ ussd_code: code, input: "" })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        document.getElementById('ussdScreenText').innerText = data.response_text;
-      } else {
-        alert(data.error);
-      }
+  function renderResult(d) {
+    $('resultCard').classList.remove('hidden');
+    $('productTitle').textContent = d.catalog.title;
+    $('categoryBadge').textContent = d.catalog.category;
+    $('priceBadge').textContent = d.catalog.estimated_price_rwf + ' RWF';
+    $('stockBadge').textContent = 'Stock: ' + d.stock_quantity;
+    $('photoDescription').textContent = d.catalog.description;
+    $('lowStock').classList.toggle('hidden', !d.low_stock);
+    $('copyRw').textContent = d.campaign.ad_copy_rw;
+    $('copyEn').textContent = d.campaign.ad_copy_en;
+    $('copyFr').textContent = d.campaign.ad_copy_fr;
+    $('waPreview').textContent = d.whatsapp_formatted_message;
+    $('pipelineChips').innerHTML = d.pipeline.map((s) =>
+      '<span class="chip ' + (s.fallback ? 'fallback' : '') + '" title="' + esc(s.error || '') + '">' +
+      esc(s.model) + ' (' + esc(s.step) + '): ' + (s.fallback ? 'local fallback' : 'live, ' + esc(s.provider || 'model API')) + ', ' + s.ms + ' ms</span>').join('');
+    $('fallbackNotice').classList.toggle('hidden', d.all_models_live);
+    const studio = $('studioPreview');
+    studio.src = 'data:' + d.studio_image.mime + ';base64,' + d.studio_image.b64; studio.style.display = 'block';
+    const text = 'Hello! I want to order ' + d.catalog.title + ' (' + d.catalog.estimated_price_rwf + ' RWF) via KuraCommerce.';
+    $('orderBtn').href = 'https://wa.me/' + d.merchant_whatsapp.replace(/[^0-9]/g, '') + '?text=' + encodeURIComponent(text);
+    $('resultCard').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ---- USSD ----
+  async function ussd(input) {
+    const res = await fetch('/api/ussd-fallback', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ussd_code: $('ussdCode').value.trim(), input: input, phone: $('whatsappNumber').value.trim() })
+    });
+    const data = await res.json();
+    if (!res.ok) { notify(data.error); return; }
+    $('ussdScreen').textContent = data.response_text;
+  }
+  const dial = () => ussd('');
+  function sendUssd() { const v = $('ussdInput').value.trim(); $('ussdInput').value = ''; ussd(v); }
+
+  // ---- Map ----
+  async function loadMap() {
+    if (typeof L === 'undefined') { $('placeCards').textContent = 'The map library could not load. Check your internet connection and reload.'; return; }
+    if (!mapObj) {
+      mapObj = L.map('map').setView([-1.9536, 30.0606], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(mapObj);
     }
+    mapObj.invalidateSize();
+    let places = [];
+    try { places = await (await fetch('/api/listings')).json(); } catch (e) { $('placeCards').textContent = 'Could not load listings.'; return; }
+    markers.forEach((m) => mapObj.removeLayer(m)); markers = [];
+    const shown = places.filter((p) => mapFilter === 'all' || GROUPS[mapFilter].test(p.category || ''));
+    $('placeCards').innerHTML = shown.length ? shown.map((p) => {
+      const wa = p.phone ? '<a href="https://wa.me/' + esc(p.phone.replace(/[^0-9]/g, '')) + '?text=' + encodeURIComponent('Hello! I found ' + p.name + ' on KuraCommerce.') + '" target="_blank" rel="noopener" style="background:var(--green)">WhatsApp</a>' : '';
+      return '<div class="place"><span class="badge">' + esc(p.category) + '</span><h4>' + esc(p.name) + '</h4>' +
+        '<p>' + esc(p.area) + ' | ' + esc(p.price) + '</p>' +
+        '<div class="row" style="margin-top:.7rem">' + wa +
+        '<a href="https://www.google.com/maps/search/?api=1&query=' + p.lat + ',' + p.lng + '" target="_blank" rel="noopener" style="background:#0284c7">Directions</a></div></div>';
+    }).join('') : '<p>No places in this category yet. Create a listing in the studio to add one.</p>';
+    shown.forEach((p) => {
+      const m = L.marker([p.lat, p.lng]).addTo(mapObj);
+      const pop = document.createElement('div');
+      pop.innerHTML = '<b>' + esc(p.name) + '</b><br>' + esc(p.category) + '<br>' + esc(p.price);
+      m.bindPopup(pop); markers.push(m);
+    });
+  }
+  function filterMap(key, btn) {
+    document.querySelectorAll('.filter').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active'); mapFilter = key; loadMap();
+  }
 
-    async function sendUssdInput() {
-      const code = document.getElementById('ussdCodeInput').value.trim();
-      const inputVal = document.getElementById('ussdInput').value.trim();
-      const res = await fetch('/api/ussd-fallback', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ ussd_code: code, input: inputVal })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        document.getElementById('ussdScreenText').innerText = data.response_text;
-        document.getElementById('ussdInput').value = "";
-      }
-    }
-
-    function openPasswordResetModal() { document.getElementById('passwordModal').style.display = 'flex'; }
-    function closePasswordModal() { document.getElementById('passwordModal').style.display = 'none'; }
-
-    async function submitPasswordReset() {
-      const oldPwd = document.getElementById('oldPwdInput').value;
-      const newPwd = document.getElementById('newPwdInput').value;
-      const res = await fetch('/api/admin/reset-password', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ old_password: oldPwd, new_password: newPwd })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        currentAdminPwd = newPwd;
-        alert("Password updated successfully!");
-        closePasswordModal();
-      } else {
-        alert(data.error);
-      }
-    }
-
-    function renderAdminTable() {
-      const tbody = document.getElementById('adminOrderTable');
-      if (ordersList.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No orders logged yet.</td></tr>`; return; }
-      tbody.innerHTML = ordersList.map((o, idx) => `
-        <tr><td>${o.time}</td><td>${o.phone}</td><td>${o.title}</td><td>${o.stock}</td><td>${o.price}</td>
-        <td><button onclick="openTelemetryModal(${idx})" style="padding:0.4rem; font-size:0.8rem; background:#0284c7; width:auto; cursor:pointer;">View JSON</button></td></tr>
-      `).join('');
-    }
-
-    function openTelemetryModal(idx) {
-      document.getElementById('modalTitle').innerText = "Telemetry: " + ordersList[idx].title;
-      document.getElementById('modalJsonContent').innerText = JSON.stringify(ordersList[idx].payload, null, 2);
-      document.getElementById('telemetryModal').style.display = 'flex';
-    }
-    function closeModal() { document.getElementById('telemetryModal').style.display = 'none'; }
-
-    function initOrRefreshMap(filterKey) {
-      const mapContainer = document.getElementById('map');
-      if (!mapContainer) return;
-
-      if (!mapInstance) {
-        mapInstance = L.map('map').setView([-1.9536, 30.0606], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(mapInstance);
-      }
-      
-      mapInstance.invalidateSize();
-
-      mapMarkers.forEach(m => mapInstance.removeLayer(m));
-      mapMarkers = [];
-
-      const filtered = directoryPlaces.filter(p => {
-        if (filterKey === 'all') return true;
-        return p.category.toLowerCase().includes(filterKey.toLowerCase());
-      });
-
-      const cardsContainer = document.getElementById('directoryCards');
-      if (cardsContainer) {
-        cardsContainer.innerHTML = filtered.map(p => {
-          const cleanPhone = (p.phone || "").replace(/[^0-9]/g, '');
-          const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello! I found ' + p.name + ' on KuraCommerce Map.')}`;
-          const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
-          return `
-            <div style="background:#0b111e; padding:1.1rem; border-radius:10px; border:1px solid #283548;">
-              <span class="badge">${p.category}</span>
-              <h4 style="margin:0.4rem 0; color:var(--accent-cyan);">${p.name}</h4>
-              <p style="margin:0.25rem 0; font-size:0.85rem; color:#cbd5e1;">📍 ${p.area} | 💰 ${p.price}</p>
-              <p style="margin:0.25rem 0; font-size:0.85rem; color:#94a3b8;">📲 WhatsApp: ${p.phone}</p>
-              <div style="display:flex; gap:0.5rem; margin-top:0.85rem;">
-                <a href="${waUrl}" target="_blank" style="flex:1; background:var(--accent-green); color:white; text-align:center; padding:0.5rem; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:700;">WhatsApp</a>
-                <a href="${gmapsUrl}" target="_blank" style="flex:1; background:#0284c7; color:white; text-align:center; padding:0.5rem; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:700;">Directions</a>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-
-      filtered.forEach(p => {
-        const marker = L.marker([p.lat, p.lng]).addTo(mapInstance);
-        marker.bindPopup(`<b>${p.name}</b><br>${p.category}<br>📍 ${p.area}<br>💰 ${p.price}<br>📲 ${p.phone}`);
-        mapMarkers.push(marker);
-      });
-    }
-
-    function filterDirectory(key, btnEl) {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
-      initOrRefreshMap(key);
-    }
-  </script>
+  // ---- Admin (server-side auth) ----
+  async function adminLogin() {
+    const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: $('adminPwd').value }) });
+    const data = await res.json();
+    if (!res.ok) { notify(data.error || 'Sign in failed.'); return; }
+    adminToken = data.token; $('adminPwd').value = ''; loadAdmin();
+  }
+  function adminLogout() {
+    adminToken = ''; adminData = [];
+    $('adminPanel').classList.add('hidden'); $('adminLogin').classList.remove('hidden');
+  }
+  async function loadAdmin() {
+    const res = await fetch('/api/admin/listings', { headers: { Authorization: 'Bearer ' + adminToken } });
+    if (res.status === 401) { adminLogout(); notify('Your session expired. Sign in again.'); return; }
+    adminData = await res.json();
+    $('adminLogin').classList.add('hidden'); $('adminPanel').classList.remove('hidden');
+    $('adminRows').innerHTML = adminData.length ? adminData.map((r, i) => {
+      const steps = ((r.payload || {}).pipeline || []);
+      const live = steps.length && steps.every((s) => !s.fallback);
+      return '<tr><td>' + esc(new Date(r.created_at * 1000).toLocaleString()) + '</td><td>' + esc(r.phone) + '</td><td>' + esc(r.title) +
+        '</td><td>' + esc(r.stock) + '</td><td>' + esc(r.price) + ' RWF</td><td><span class="chip ' + (live ? '' : 'fallback') + '">' +
+        (live ? 'all live' : 'includes fallback') + '</span> <button class="btn small" onclick="showJson(' + i + ')">View JSON</button></td></tr>';
+    }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--muted)">No listings yet. Create one in the studio.</td></tr>';
+  }
+  function showJson(i) {
+    $('modalTitle').textContent = 'Telemetry: ' + adminData[i].title;
+    $('modalJson').textContent = JSON.stringify(adminData[i].payload, null, 2);
+    $('telemetryModal').style.display = 'flex';
+  }
+</script>
 </body>
 </html>

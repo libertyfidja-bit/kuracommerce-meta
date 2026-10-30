@@ -3,25 +3,30 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.cache
+.pytest_cache/
+*.egg-info/
+build/
+dist/
 
-# Environments & Dependencies
+# Environments & dependencies
 venv/
 .venv/
 env/
 ENV/
 
-# Secret & Environment Variables (CRITICAL: Keeps Meta API keys private)
+# Secrets: keeps Meta API keys and the admin password private
 .env
 .env.local
 .env.*
 !.env.example
 
-# Local Database & Test Outputs
+# Local database & logs
 *.sqlite3
 *.db
 *.log
+instance/
 
-# OS & Editor generated files
+# OS & editor files
 .DS_Store
 Thumbs.db
 .vscode/

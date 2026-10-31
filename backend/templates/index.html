@@ -138,7 +138,7 @@
       <h2 id="productTitle" style="color:var(--cyan);margin:.5rem 0"></h2>
       <p id="photoDescription"></p>
       <div id="lowStock" class="notice hidden">Low stock: only a few units left.</div>
-      
+
       <h4>Campaign</h4>
       <p><strong>Kinyarwanda:</strong> <span id="copyRw"></span></p>
       <p><strong>English:</strong> <span id="copyEn"></span></p>
@@ -343,10 +343,28 @@
     } finally {
       btn.disabled = false; btn.textContent = 'Create listing and campaign';
     }
+    // Inside your form submission success response handler (where you handle `data`):
+const studioImg = document.getElementById('studio-image-preview');
+if (studioImg && data.studio_image) {
+    studioImg.src = `data:${data.studio_image.mime};base64,${data.studio_image.b64}`;
+}
   }
 
-  function renderResult(d) {
+ function renderResult(d) {
     $('resultCard').classList.remove('hidden');
+    
+    // --- 1. SET ORIGINAL PHOTO PREVIEW HERE ---
+    const raw = $('rawPreview');
+    if (typeof photoDataUrl !== 'undefined' && photoDataUrl) {
+        raw.src = photoDataUrl;
+        raw.style.display = 'block';
+    }
+
+    // --- 2. EXISTING STUDIO VERSION ---
+    const studio = $('studioPreview');
+    studio.src = 'data:' + d.studio_image.mime + ';base64,' + d.studio_image.b64; 
+    studio.style.display = 'block';
+
     $('productTitle').textContent = d.catalog.title;
     $('categoryBadge').textContent = d.catalog.category;
     $('priceBadge').textContent = d.catalog.estimated_price_rwf + ' RWF';
@@ -361,8 +379,7 @@
       '<span class="chip ' + (s.fallback ? 'fallback' : '') + '" title="' + esc(s.error || '') + '">' +
       esc(s.model) + ' (' + esc(s.step) + '): ' + (s.fallback ? 'local fallback' : 'live, ' + esc(s.provider || 'model API')) + ', ' + s.ms + ' ms</span>').join('');
     $('fallbackNotice').classList.toggle('hidden', d.all_models_live);
-    const studio = $('studioPreview');
-    studio.src = 'data:' + d.studio_image.mime + ';base64,' + d.studio_image.b64; studio.style.display = 'block';
+    
     const text = 'Hello! I want to order ' + d.catalog.title + ' (' + d.catalog.estimated_price_rwf + ' RWF) via KuraCommerce.';
     $('orderBtn').href = 'https://wa.me/' + d.merchant_whatsapp.replace(/[^0-9]/g, '') + '?text=' + encodeURIComponent(text);
     $('resultCard').scrollIntoView({ behavior: 'smooth' });

@@ -5,8 +5,8 @@ the event, and judges must be able to tell what is new. This file is that record
 
 ## Event window
 
-- Hackathon start: `2026-10-30`
-- Hackathon end: `2026-11-02`
+- Hackathon start: `2026-10-27`
+- Hackathon end: `2026-11-01`
 - First commit made during the event: `repo created during the event`
 - Last commit before the event, if any: `none: repo created during the event``
 

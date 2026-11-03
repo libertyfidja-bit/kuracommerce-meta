@@ -19,8 +19,6 @@ git log pre-hackathon..HEAD --stat        # everything added during the event
 
 ## What was built during the event
 
-Tick only what was truly written during the event window. Remove or relabel the rest.
-
 | Area | Files | Built during event? |
 |---|---|---|
 | Four-model pipeline (SAM 3.1, Muse Wonder, Muse Image, Muse Spark) with per-step telemetry | `backend/meta_client.py` | ✅ Yes |
@@ -36,8 +34,6 @@ Tick only what was truly written during the event window. Remove or relabel the 
 
 ## What existed before, or is not ours
 
-Be explicit. Judges expect this section.
-
 - **Open-source libraries:** Flask, Requests, Pillow, python-dotenv, gunicorn, Leaflet, itsdangerous.
 - **Map data:** OpenStreetMap tiles.
 - **Browser features:** Web Speech API (voice input), Geolocation API.
@@ -48,7 +44,7 @@ Be explicit. Judges expect this section.
 
 ## AI coding assistance
 
-The hackathon encourages the Muse Code coding agent. State what you used it for.
+The hackathon encourages the Muse Code coding agent. 
 
 - Tools used: GitHub Codespaces for development. Claude (Anthropic) was used as an AI assistant to review and rewrite parts of the backend, UI UI glassmorphism templates and documentation.
 - What they helped with: : error handling, Hugging Face API integration, fallback logic, admin authentication, and voice-input error handling
